@@ -133,10 +133,8 @@ function syncPhoneLinks(contacts) {
   if (!phoneContact) return;
   const telHref = `tel:${phoneContact.value.replace(/[^\d+]/g, '')}`;
   const headerPhone = document.getElementById('header-phone');
-  const heroCta = document.getElementById('hero-cta');
   headerPhone.href = telHref;
   headerPhone.textContent = phoneContact.value;
-  heroCta.href = telHref;
 }
 
 fetch('/api/content')

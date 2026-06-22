@@ -16,6 +16,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--color-text);
@@ -308,6 +312,12 @@ a {
 
 .contacts__info p {
   margin-bottom: 12px;
+}
+
+.contacts__note {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  margin-bottom: 20px;
 }
 
 .contacts__map iframe {
