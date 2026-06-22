@@ -1,7 +1,10 @@
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
+
+require('./server/env').loadEnvFile();
 
 const auth = require('./server/auth');
 const store = require('./server/contentStore');
@@ -9,6 +12,38 @@ const imageStore = require('./server/imageStore');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
+
+const LOGIN_RATE_LIMIT = { maxAttempts: 10, windowMs: 10 * 60 * 1000 };
+const loginAttempts = new Map();
+
+function getClientIp(req) {
+  return req.socket.remoteAddress || 'unknown';
+}
+
+function checkLoginRateLimit(ip) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip);
+  if (!entry || now > entry.resetAt) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_RATE_LIMIT.windowMs });
+    return true;
+  }
+  entry.count += 1;
+  return entry.count <= LOGIN_RATE_LIMIT.maxAttempts;
+}
+
+function isHttpsRequest(req) {
+  return Boolean(req.socket.encrypted) || req.headers['x-forwarded-proto'] === 'https';
+}
+
+function setSessionCookie(req, res, token) {
+  const secure = isHttpsRequest(req) ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Lax${secure}`);
+}
+
+function clearSessionCookie(req, res) {
+  const secure = isHttpsRequest(req) ? '; Secure' : '';
+  res.setHeader('Set-Cookie', `session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`);
+}
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -68,9 +103,20 @@ function requireAuth(req, res) {
 function serveStaticFile(req, res, pathname) {
   let relativePath = pathname === '/' ? '/index.html' : pathname;
   if (relativePath === '/admin') relativePath = '/admin.html';
-  const filePath = path.normalize(path.join(PUBLIC_DIR, decodeURIComponent(relativePath)));
 
-  if (!filePath.startsWith(PUBLIC_DIR)) {
+  let decodedPath;
+  try {
+    decodedPath = decodeURIComponent(relativePath);
+  } catch (err) {
+    res.writeHead(400);
+    res.end('Bad Request');
+    return;
+  }
+
+  const filePath = path.normalize(path.join(PUBLIC_DIR, decodedPath));
+  const relativeToPublic = path.relative(PUBLIC_DIR, filePath);
+
+  if (relativeToPublic.startsWith('..') || path.isAbsolute(relativeToPublic)) {
     res.writeHead(403);
     res.end('Forbidden');
     return;
@@ -103,6 +149,11 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/login' && req.method === 'POST') {
+    const ip = getClientIp(req);
+    if (!checkLoginRateLimit(ip)) {
+      sendJson(res, 429, { error: 'Слишком много попыток входа. Попробуй снова через несколько минут.' });
+      return;
+    }
     const body = await readJsonBody(req, 10 * 1024);
     const slot = auth.verifyPassword(body.password || '');
     if (!slot) {
@@ -110,7 +161,7 @@ async function handleApi(req, res, pathname) {
       return;
     }
     const token = auth.createSession(slot);
-    res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Path=/; Max-Age=604800; SameSite=Lax`);
+    setSessionCookie(req, res, token);
     sendJson(res, 200, { ok: true, slot });
     return;
   }
@@ -118,7 +169,7 @@ async function handleApi(req, res, pathname) {
   if (pathname === '/api/logout' && req.method === 'POST') {
     const cookies = auth.parseCookies(req);
     auth.destroySession(cookies.session);
-    res.setHeader('Set-Cookie', 'session=; Path=/; Max-Age=0');
+    clearSessionCookie(req, res);
     sendJson(res, 200, { ok: true });
     return;
   }
@@ -133,8 +184,9 @@ async function handleApi(req, res, pathname) {
       sendJson(res, 401, { error: 'Текущий пароль неверен' });
       return;
     }
-    if (!body.newPassword || body.newPassword.length < 4) {
-      sendJson(res, 400, { error: 'Новый пароль должен быть не короче 4 символов' });
+    const strength = auth.validatePasswordStrength(body.newPassword || '');
+    if (!strength.ok) {
+      sendJson(res, 400, { error: strength.error });
       return;
     }
     if (auth.verifyPasswordForSlot(auth.otherSlot(slot), body.newPassword)) {
@@ -142,7 +194,9 @@ async function handleApi(req, res, pathname) {
       return;
     }
     auth.setPassword(slot, body.newPassword);
-    sendJson(res, 200, { ok: true });
+    auth.destroySessionsForSlot(slot);
+    clearSessionCookie(req, res);
+    sendJson(res, 200, { ok: true, reauth: true });
     return;
   }
 
@@ -151,12 +205,8 @@ async function handleApi(req, res, pathname) {
       sendJson(res, 403, { error: 'Доступно только из резервного входа' });
       return;
     }
-    const didReset = auth.resetPrimaryPassword();
-    if (!didReset) {
-      sendJson(res, 400, { error: 'Сброс невозможен: пароль 1234 совпадает с твоим текущим паролем. Сначала смени свой пароль на другой.' });
-      return;
-    }
-    sendJson(res, 200, { ok: true });
+    const newPassword = auth.resetPrimaryPassword();
+    sendJson(res, 200, { ok: true, newPassword });
     return;
   }
 
@@ -184,6 +234,11 @@ async function handleApi(req, res, pathname) {
     const body = await readJsonBody(req, 1024);
     if (!body.image) {
       sendJson(res, 400, { error: 'Не указано изображение' });
+      return;
+    }
+    const existsInPortfolio = store.getContent().portfolio.some((p) => p.image === body.image);
+    if (!existsInPortfolio) {
+      sendJson(res, 400, { error: 'Такого изображения нет в портфолио' });
       return;
     }
     const hero = store.setHeroImage(body.image);
@@ -251,24 +306,38 @@ async function handleApi(req, res, pathname) {
   if (portfolioMatch && req.method === 'PUT') {
     const body = await readJsonBody(req, 16 * 1024 * 1024);
     let image;
+    let previousImage;
     if (body.imageDataUrl) {
+      const existing = store.getContent().portfolio.find((p) => p.id === portfolioMatch[1]);
+      previousImage = existing ? existing.image : undefined;
       image = imageStore.saveImageFromDataUrl(body.imageDataUrl, 'portfolio');
     }
+    const wasHero = image && previousImage && store.getContent().hero.image === previousImage;
     const updated = store.updatePortfolioItem(portfolioMatch[1], { image, alt: body.alt });
     if (!updated) {
       sendJson(res, 404, { error: 'Фото не найдено' });
       return;
     }
+    if (previousImage && previousImage !== updated.image) {
+      imageStore.deleteImageByUrl(previousImage);
+      if (wasHero) store.setHeroImage(updated.image);
+    }
     sendJson(res, 200, updated);
     return;
   }
   if (portfolioMatch && req.method === 'DELETE') {
+    const content = store.getContent();
+    const wasHero = content.hero.image === (content.portfolio.find((p) => p.id === portfolioMatch[1]) || {}).image;
     const removed = store.deletePortfolioItem(portfolioMatch[1]);
     if (!removed) {
       sendJson(res, 404, { error: 'Фото не найдено' });
       return;
     }
     imageStore.deleteImageByUrl(removed.image);
+    if (wasHero) {
+      const remaining = store.getContent().portfolio;
+      store.setHeroImage(remaining.length > 0 ? remaining[0].image : '');
+    }
     sendJson(res, 200, { ok: true });
     return;
   }
@@ -332,7 +401,14 @@ async function handleApi(req, res, pathname) {
   sendJson(res, 404, { error: 'Не найдено' });
 }
 
-const server = http.createServer((req, res) => {
+try {
+  auth.ensureInitialized();
+} catch (err) {
+  console.error(`\nСервер не запущен: ${err.message}\n`);
+  process.exit(1);
+}
+
+function requestListener(req, res) {
   const { pathname } = new URL(req.url, `http://${req.headers.host}`);
 
   if (pathname.startsWith('/api/')) {
@@ -343,8 +419,33 @@ const server = http.createServer((req, res) => {
   }
 
   serveStaticFile(req, res, pathname);
-});
+}
 
-server.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
-});
+const sslKeyPath = process.env.SSL_KEY_PATH;
+const sslCertPath = process.env.SSL_CERT_PATH;
+
+if (sslKeyPath && sslCertPath && fs.existsSync(sslKeyPath) && fs.existsSync(sslCertPath)) {
+  const httpsPort = process.env.HTTPS_PORT || 443;
+  const httpsServer = https.createServer(
+    { key: fs.readFileSync(sslKeyPath), cert: fs.readFileSync(sslCertPath) },
+    requestListener
+  );
+  httpsServer.listen(httpsPort, () => {
+    console.log(`HTTPS server is running on port ${httpsPort}`);
+  });
+
+  // Plain HTTP server only redirects to HTTPS — it never serves content directly.
+  const redirectServer = http.createServer((req, res) => {
+    const host = (req.headers.host || '').split(':')[0];
+    res.writeHead(301, { Location: `https://${host}${req.url}` });
+    res.end();
+  });
+  redirectServer.listen(PORT, () => {
+    console.log(`HTTP server is running on port ${PORT} (redirecting to HTTPS)`);
+  });
+} else {
+  const server = http.createServer(requestListener);
+  server.listen(PORT, () => {
+    console.log(`Server is running at http://localhost:${PORT}`);
+  });
+}

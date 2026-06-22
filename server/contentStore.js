@@ -10,15 +10,41 @@ function genId() {
   return crypto.randomBytes(5).toString('hex');
 }
 
+const DEFAULTS = {
+  hero: { image: '' },
+  about: { text: '', image: '' },
+  servicesNote: '',
+  services: [],
+  portfolio: [],
+  contacts: [],
+};
+
+function applyDefaults(content) {
+  const result = content && typeof content === 'object' ? content : {};
+  result.hero = result.hero && typeof result.hero === 'object' ? result.hero : { ...DEFAULTS.hero };
+  if (typeof result.hero.image !== 'string') result.hero.image = '';
+  result.about = result.about && typeof result.about === 'object' ? result.about : { ...DEFAULTS.about };
+  if (typeof result.about.text !== 'string') result.about.text = '';
+  if (typeof result.about.image !== 'string') result.about.image = '';
+  if (typeof result.servicesNote !== 'string') result.servicesNote = '';
+  if (!Array.isArray(result.services)) result.services = [];
+  if (!Array.isArray(result.portfolio)) result.portfolio = [];
+  if (!Array.isArray(result.contacts)) result.contacts = [];
+  return result;
+}
+
 function load() {
   if (!cache) {
-    cache = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+    cache = applyDefaults(raw);
   }
   return cache;
 }
 
 function save() {
-  fs.writeFileSync(CONTENT_PATH, JSON.stringify(cache, null, 2), 'utf8');
+  const tmpPath = `${CONTENT_PATH}.tmp`;
+  fs.writeFileSync(tmpPath, JSON.stringify(cache, null, 2), 'utf8');
+  fs.renameSync(tmpPath, CONTENT_PATH);
 }
 
 function getContent() {

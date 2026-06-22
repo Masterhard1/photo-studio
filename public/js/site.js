@@ -44,6 +44,7 @@ function renderPortfolio(portfolio) {
 
 function setupLightbox() {
   const galleryImages = Array.from(document.querySelectorAll('.portfolio__item img'));
+  if (galleryImages.length === 0) return;
   const lightbox = document.getElementById('lightbox');
   const lightboxImg = document.getElementById('lightbox-img');
   let currentIndex = 0;

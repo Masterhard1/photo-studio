@@ -3,3 +3,4 @@ data/admin-config.json
 data/admin-config-backup.json
 .idea/
 *.log
+.env

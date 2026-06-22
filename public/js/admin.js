@@ -345,10 +345,11 @@ document.getElementById('password-form').addEventListener('submit', async (e) =>
   const status = document.getElementById('password-status');
   try {
     await api('/api/admin/password', { method: 'PUT', body: JSON.stringify({ currentPassword, newPassword }) });
-    setStatus(status, 'Пароль изменён', false);
     e.target.reset();
     document.getElementById('strength-meter-bar').className = 'strength-meter__bar';
     document.getElementById('strength-meter-label').textContent = '';
+    alert('Пароль изменён. Сейчас нужно будет войти заново с новым паролем.');
+    showLogin();
   } catch (err) {
     setStatus(status, err.message, true);
   }
@@ -448,10 +449,13 @@ api('/api/session').then((data) => {
 
 document.getElementById('reset-primary-btn').addEventListener('click', async () => {
   const status = document.getElementById('reset-primary-status');
-  if (!confirm('Сбросить мамин пароль на 1234?')) return;
+  const resultEl = document.getElementById('reset-primary-result');
+  if (!confirm('Сбросить мамин пароль? Текущий мамин пароль перестанет работать.')) return;
   try {
-    await api('/api/admin/reset-primary-password', { method: 'POST' });
-    setStatus(status, 'Мамин пароль сброшен на 1234', false);
+    const data = await api('/api/admin/reset-primary-password', { method: 'POST' });
+    resultEl.hidden = false;
+    resultEl.textContent = `Новый пароль мамы: ${data.newPassword} — запиши и передай ей, повторно он не показывается.`;
+    setStatus(status, 'Пароль сброшен', false);
   } catch (err) {
     setStatus(status, err.message, true);
   }

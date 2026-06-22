@@ -6,11 +6,14 @@ const CONFIG_PATHS = {
   primary: path.join(__dirname, '..', 'data', 'admin-config.json'),
   backup: path.join(__dirname, '..', 'data', 'admin-config-backup.json'),
 };
-const DEFAULT_PASSWORDS = {
-  primary: '1234',
-  backup: '12345',
-};
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const MIN_PASSWORD_LENGTH = 10;
+
+const WEAK_PASSWORDS = new Set([
+  '1234', '12345', '123456', '1234567', '12345678', '123456789', '1234567890',
+  'qwerty', 'qwertyuiop', 'qwerty123', 'password', 'password1', 'iloveyou',
+  'пароль', 'пароль123', 'admin', 'admin123', '11111111', '00000000',
+]);
 
 const sessions = new Map();
 
@@ -21,7 +24,7 @@ function hashPassword(password, salt) {
 function loadConfig(slot) {
   const configPath = CONFIG_PATHS[slot];
   if (!fs.existsSync(configPath)) {
-    setPassword(slot, DEFAULT_PASSWORDS[slot]);
+    throw new Error(`Конфигурация пароля для "${slot}" отсутствует — сервер не был корректно инициализирован`);
   }
   return JSON.parse(fs.readFileSync(configPath, 'utf8'));
 }
@@ -50,12 +53,95 @@ function otherSlot(slot) {
   return slot === 'primary' ? 'backup' : 'primary';
 }
 
-function resetPrimaryPassword() {
-  if (verifyPasswordForSlot('backup', DEFAULT_PASSWORDS.primary)) {
-    return false;
+function normalizeDigits(value) {
+  return (value || '').replace(/\D/g, '');
+}
+
+function isAllSameChar(value) {
+  return /^(.)\1+$/.test(value);
+}
+
+function isSequential(value) {
+  if (value.length < 4) return false;
+  let ascending = true;
+  let descending = true;
+  for (let i = 1; i < value.length; i++) {
+    if (value.charCodeAt(i) !== value.charCodeAt(i - 1) + 1) ascending = false;
+    if (value.charCodeAt(i) !== value.charCodeAt(i - 1) - 1) descending = false;
   }
-  setPassword('primary', DEFAULT_PASSWORDS.primary);
-  return true;
+  return ascending || descending;
+}
+
+function getStudioPhoneDigits() {
+  try {
+    // Lazy require avoids a hard circular dependency at module load time.
+    const content = require('./contentStore').getContent();
+    const phoneContact = (content.contacts || []).find((c) => /телефон/i.test(c.label));
+    return phoneContact ? normalizeDigits(phoneContact.value) : '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function validatePasswordStrength(password) {
+  if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+    return { ok: false, error: `Пароль должен быть не короче ${MIN_PASSWORD_LENGTH} символов` };
+  }
+  const lower = password.toLowerCase();
+  if (WEAK_PASSWORDS.has(lower)) {
+    return { ok: false, error: 'Этот пароль слишком простой и легко угадывается — выбери другой' };
+  }
+  if (isAllSameChar(password)) {
+    return { ok: false, error: 'Пароль не должен состоять из одного повторяющегося символа' };
+  }
+  if (isSequential(lower)) {
+    return { ok: false, error: 'Пароль не должен быть простой последовательностью символов' };
+  }
+  const passwordDigits = normalizeDigits(password);
+  const phoneDigits = getStudioPhoneDigits();
+  if (phoneDigits && passwordDigits && passwordDigits.includes(phoneDigits)) {
+    return { ok: false, error: 'Пароль не должен совпадать с номером телефона студии' };
+  }
+  return { ok: true };
+}
+
+function generateStrongPassword(length = 14) {
+  const charset = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#%&*';
+  let pwd = '';
+  for (let i = 0; i < length; i++) {
+    pwd += charset[crypto.randomInt(charset.length)];
+  }
+  return pwd;
+}
+
+function ensureInitialized() {
+  for (const slot of Object.keys(CONFIG_PATHS)) {
+    if (fs.existsSync(CONFIG_PATHS[slot])) continue;
+    const envKey = `ADMIN_PASSWORD_${slot.toUpperCase()}`;
+    const password = process.env[envKey];
+    if (!password) {
+      throw new Error(
+        `Не задан пароль для первого запуска. Создай файл .env в корне проекта (см. .env.example) и укажи в нём ${envKey}.`
+      );
+    }
+    const check = validatePasswordStrength(password);
+    if (!check.ok) {
+      throw new Error(`Пароль в ${envKey} не подходит: ${check.error}`);
+    }
+    setPassword(slot, password);
+  }
+}
+
+function resetPrimaryPassword() {
+  let candidate = generateStrongPassword();
+  let attempts = 0;
+  while (verifyPasswordForSlot('backup', candidate) && attempts < 5) {
+    candidate = generateStrongPassword();
+    attempts++;
+  }
+  setPassword('primary', candidate);
+  destroySessionsForSlot('primary');
+  return candidate;
 }
 
 function createSession(slot) {
@@ -76,6 +162,12 @@ function getSession(token) {
 
 function destroySession(token) {
   sessions.delete(token);
+}
+
+function destroySessionsForSlot(slot) {
+  for (const [token, session] of sessions) {
+    if (session.slot === slot) sessions.delete(token);
+  }
 }
 
 function parseCookies(req) {
@@ -100,6 +192,9 @@ function getSlot(req) {
 }
 
 module.exports = {
+  MIN_PASSWORD_LENGTH,
+  ensureInitialized,
+  validatePasswordStrength,
   verifyPassword,
   verifyPasswordForSlot,
   setPassword,
@@ -107,6 +202,7 @@ module.exports = {
   otherSlot,
   createSession,
   destroySession,
+  destroySessionsForSlot,
   parseCookies,
   isAuthed,
   getSlot,

@@ -34,12 +34,13 @@
 
       <section class="admin-card">
         <h2>Смена пароля</h2>
+        <p class="admin-hint">Новый пароль должен быть не короче 10 символов и не быть простым (вроде «1234567890» или номера телефона) — сервер откажет в сохранении такого пароля и объяснит, что не так.</p>
         <form id="password-form" class="admin-form">
           <label>Текущий пароль
             <input type="password" id="current-password" required>
           </label>
           <label>Новый пароль
-            <input type="password" id="new-password" minlength="4" required>
+            <input type="password" id="new-password" minlength="10" required>
           </label>
           <div class="strength-meter" id="strength-meter">
             <div class="strength-meter__bar" id="strength-meter-bar"></div>
@@ -51,8 +52,9 @@
 
         <div id="backup-reset-block" hidden>
           <h3>Восстановление пароля мамы</h3>
-          <p class="admin-hint">Ты вошёл через свой отдельный вход. Это твой личный доступ к админке — он не привязан к маминому. Если мама забыла свой пароль, можно сбросить именно её пароль обратно на стандартный — <code>1234</code>.</p>
-          <button class="admin-btn admin-btn--outline" id="reset-primary-btn" type="button">Сбросить пароль мамы на 1234</button>
+          <p class="admin-hint">Ты вошёл через свой отдельный вход. Это твой личный доступ к админке — он не привязан к маминому. Если мама забыла свой пароль, можно сбросить его — сервер сгенерирует новый случайный пароль, который нужно будет ей передать.</p>
+          <button class="admin-btn admin-btn--outline" id="reset-primary-btn" type="button">Сбросить пароль мамы</button>
+          <p class="admin-hint" id="reset-primary-result" hidden></p>
           <span class="admin-status" id="reset-primary-status"></span>
         </div>
       </section>
