@@ -127,6 +127,30 @@
   background: #8f3122;
 }
 
+.admin-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: var(--color-bg-alt);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: var(--color-text-muted);
+}
+
+.admin-btn:disabled:hover {
+  background: var(--color-bg-alt);
+  color: var(--color-text-muted);
+}
+
+.admin-move-row {
+  display: flex;
+  gap: 6px;
+}
+
+.admin-move-row .admin-btn {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 12px;
+}
+
 /* Main */
 .admin-main {
   max-width: 900px;

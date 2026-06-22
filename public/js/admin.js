@@ -10,6 +10,28 @@ function readFileAsDataUrl(file) {
   });
 }
 
+function createMoveRow(index, total, onMove) {
+  const row = document.createElement('div');
+  row.className = 'admin-move-row';
+
+  const upBtn = document.createElement('button');
+  upBtn.type = 'button';
+  upBtn.className = 'admin-btn admin-btn--outline';
+  upBtn.textContent = '↑ Выше';
+  upBtn.disabled = index === 0;
+  upBtn.addEventListener('click', () => onMove('up'));
+
+  const downBtn = document.createElement('button');
+  downBtn.type = 'button';
+  downBtn.className = 'admin-btn admin-btn--outline';
+  downBtn.textContent = '↓ Ниже';
+  downBtn.disabled = index === total - 1;
+  downBtn.addEventListener('click', () => onMove('down'));
+
+  row.append(upBtn, downBtn);
+  return row;
+}
+
 async function api(path, options = {}) {
   const res = await fetch(path, {
     ...options,
@@ -151,7 +173,7 @@ function renderServices() {
 function renderPortfolio() {
   const grid = document.getElementById('portfolio-list');
   grid.innerHTML = '';
-  currentContent.portfolio.forEach((item) => {
+  currentContent.portfolio.forEach((item, index) => {
     const card = document.createElement('div');
     card.className = 'admin-photo-card';
     const isHero = currentContent.hero.image === item.image;
@@ -214,7 +236,16 @@ function renderPortfolio() {
       }
     });
 
-    actions.append(saveBtn, heroBtn, deleteBtn);
+    const moveRow = createMoveRow(index, currentContent.portfolio.length, async (direction) => {
+      try {
+        await api(`/api/admin/portfolio/${item.id}/move`, { method: 'PUT', body: JSON.stringify({ direction }) });
+        await loadContent();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    actions.append(moveRow, saveBtn, heroBtn, deleteBtn);
     card.append(img, altInput, heroTag, actions);
     grid.appendChild(card);
   });
@@ -223,7 +254,7 @@ function renderPortfolio() {
 function renderContacts() {
   const list = document.getElementById('contacts-list-admin');
   list.innerHTML = '';
-  currentContent.contacts.forEach((contact) => {
+  currentContent.contacts.forEach((contact, index) => {
     const row = document.createElement('div');
     row.className = 'admin-list-item admin-list-item--contact';
 
@@ -265,7 +296,16 @@ function renderContacts() {
       }
     });
 
-    actions.append(saveBtn, deleteBtn);
+    const moveRow = createMoveRow(index, currentContent.contacts.length, async (direction) => {
+      try {
+        await api(`/api/admin/contacts/${contact.id}/move`, { method: 'PUT', body: JSON.stringify({ direction }) });
+        await loadContent();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    actions.append(moveRow, saveBtn, deleteBtn);
     row.append(labelInput, valueInput, actions);
     list.appendChild(row);
   });

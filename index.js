@@ -261,6 +261,18 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  const portfolioMoveMatch = pathname.match(/^\/api\/admin\/portfolio\/([a-zA-Z0-9]+)\/move$/);
+  if (portfolioMoveMatch && req.method === 'PUT') {
+    const body = await readJsonBody(req, 1024);
+    const ok = store.movePortfolioItem(portfolioMoveMatch[1], body.direction);
+    if (!ok) {
+      sendJson(res, 400, { error: 'Невозможно переместить' });
+      return;
+    }
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
   if (pathname === '/api/admin/contacts' && req.method === 'POST') {
     const body = await readJsonBody(req, 16 * 1024);
     if (!body.label || !body.value) {
@@ -287,6 +299,18 @@ async function handleApi(req, res, pathname) {
     const ok = store.deleteContact(contactMatch[1]);
     if (!ok) {
       sendJson(res, 404, { error: 'Контакт не найден' });
+      return;
+    }
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  const contactMoveMatch = pathname.match(/^\/api\/admin\/contacts\/([a-zA-Z0-9]+)\/move$/);
+  if (contactMoveMatch && req.method === 'PUT') {
+    const body = await readJsonBody(req, 1024);
+    const ok = store.moveContact(contactMoveMatch[1], body.direction);
+    if (!ok) {
+      sendJson(res, 400, { error: 'Невозможно переместить' });
       return;
     }
     sendJson(res, 200, { ok: true });

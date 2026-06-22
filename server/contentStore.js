@@ -129,6 +129,26 @@ function deleteContact(id) {
   return true;
 }
 
+function moveItem(listName, id, direction) {
+  const content = load();
+  const arr = content[listName];
+  const index = arr.findIndex((item) => item.id === id);
+  if (index === -1) return false;
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  if (targetIndex < 0 || targetIndex >= arr.length) return false;
+  [arr[index], arr[targetIndex]] = [arr[targetIndex], arr[index]];
+  save();
+  return true;
+}
+
+function moveContact(id, direction) {
+  return moveItem('contacts', id, direction);
+}
+
+function movePortfolioItem(id, direction) {
+  return moveItem('portfolio', id, direction);
+}
+
 module.exports = {
   genId,
   getContent,
@@ -144,4 +164,6 @@ module.exports = {
   addContact,
   updateContact,
   deleteContact,
+  moveContact,
+  movePortfolioItem,
 };
