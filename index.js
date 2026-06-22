@@ -153,7 +153,7 @@ async function handleApi(req, res, pathname) {
     }
     const didReset = auth.resetPrimaryPassword();
     if (!didReset) {
-      sendJson(res, 400, { error: 'Сброс невозможен: пароль 1234 совпадает с текущим резервным паролем. Сначала смени резервный пароль.' });
+      sendJson(res, 400, { error: 'Сброс невозможен: пароль 1234 совпадает с твоим текущим паролем. Сначала смени свой пароль на другой.' });
       return;
     }
     sendJson(res, 200, { ok: true });

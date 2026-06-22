@@ -399,10 +399,10 @@ api('/api/session').then((data) => {
 
 document.getElementById('reset-primary-btn').addEventListener('click', async () => {
   const status = document.getElementById('reset-primary-status');
-  if (!confirm('Сбросить основной пароль на 1234?')) return;
+  if (!confirm('Сбросить мамин пароль на 1234?')) return;
   try {
     await api('/api/admin/reset-primary-password', { method: 'POST' });
-    setStatus(status, 'Основной пароль сброшен на 1234', false);
+    setStatus(status, 'Мамин пароль сброшен на 1234', false);
   } catch (err) {
     setStatus(status, err.message, true);
   }
