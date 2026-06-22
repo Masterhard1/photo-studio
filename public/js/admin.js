@@ -116,7 +116,7 @@ async function loadContent() {
 function renderServices() {
   const list = document.getElementById('services-list');
   list.innerHTML = '';
-  currentContent.services.forEach((service) => {
+  currentContent.services.forEach((service, index) => {
     const row = document.createElement('div');
     row.className = 'admin-list-item';
 
@@ -163,7 +163,16 @@ function renderServices() {
       }
     });
 
-    actions.append(saveBtn, deleteBtn);
+    const moveRow = createMoveRow(index, currentContent.services.length, async (direction) => {
+      try {
+        await api(`/api/admin/services/${service.id}/move`, { method: 'PUT', body: JSON.stringify({ direction }) });
+        await loadContent();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    actions.append(moveRow, saveBtn, deleteBtn);
     row.append(titleInput, priceInput, descInput, actions);
     list.appendChild(row);
     autosize(descInput);

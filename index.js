@@ -223,6 +223,18 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  const serviceMoveMatch = pathname.match(/^\/api\/admin\/services\/([a-zA-Z0-9]+)\/move$/);
+  if (serviceMoveMatch && req.method === 'PUT') {
+    const body = await readJsonBody(req, 1024);
+    const ok = store.moveService(serviceMoveMatch[1], body.direction);
+    if (!ok) {
+      sendJson(res, 400, { error: 'Невозможно переместить' });
+      return;
+    }
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
   if (pathname === '/api/admin/portfolio' && req.method === 'POST') {
     const body = await readJsonBody(req, 16 * 1024 * 1024);
     if (!body.imageDataUrl) {

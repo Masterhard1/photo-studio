@@ -145,6 +145,10 @@ function moveContact(id, direction) {
   return moveItem('contacts', id, direction);
 }
 
+function moveService(id, direction) {
+  return moveItem('services', id, direction);
+}
+
 function movePortfolioItem(id, direction) {
   return moveItem('portfolio', id, direction);
 }
@@ -166,4 +170,5 @@ module.exports = {
   deleteContact,
   moveContact,
   movePortfolioItem,
+  moveService,
 };
