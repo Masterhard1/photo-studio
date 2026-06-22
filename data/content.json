@@ -1,0 +1,120 @@
+{
+  "hero": {
+    "image": "/images/portfolio/deti-s-sharikami.jpg"
+  },
+  "about": {
+    "text": "«Портретная» — небольшая фотостудия в Малоярославце, где мы создаём душевные кадры для всей семьи. Снимаем как в студии, так и на природе, помогаем с позами и настроением, даже если вы никогда не фотографировались профессионально. Каждая съёмка — это история, которую хочется сохранить надолго.",
+    "image": "/images/about/about.jpg"
+  },
+  "servicesNote": "Работаем ежедневно с 10:00 до 19:00, только по предварительной записи.\nОплата наличными или переводом.",
+  "services": [
+    {
+      "id": "s1",
+      "title": "Студийная съёмка",
+      "price": "5000 ₽ / час",
+      "description": "Портретная, индивидуальная съёмка в студии. Обработка фото включена."
+    },
+    {
+      "id": "s2",
+      "title": "Съёмка на природе",
+      "price": "6000 ₽ / час",
+      "description": "Выездная фотосессия на природе. Обработка фото включена."
+    },
+    {
+      "id": "s3",
+      "title": "Детская мини-сессия",
+      "price": "3000 ₽ / 30 минут",
+      "description": "Для детей от 1 до 9 лет. Короткий и комфортный формат."
+    },
+    {
+      "id": "s4",
+      "title": "Другие форматы",
+      "price": "по запросу",
+      "description": "Новорождённые, свадебная, портфолио, рекламная и выездная съёмка."
+    }
+  ],
+  "portfolio": [
+    {
+      "id": "p1",
+      "image": "/images/portfolio/semeynoe-foto-v-sadu.jpg",
+      "alt": "Семейное фото в цветущем саду"
+    },
+    {
+      "id": "p2",
+      "image": "/images/portfolio/devochka-v-platye-pole-cvetov.jpg",
+      "alt": "Девочка в платье в поле цветов"
+    },
+    {
+      "id": "p3",
+      "image": "/images/portfolio/devochka-v-ochkah-pole-cvetov.jpg",
+      "alt": "Девочка в очках в поле цветов"
+    },
+    {
+      "id": "p4",
+      "image": "/images/portfolio/vnuk-na-plechah-deda-pole-cvetov.jpg",
+      "alt": "Внук на плечах деда в поле цветов"
+    },
+    {
+      "id": "p5",
+      "image": "/images/portfolio/deti-s-sharikami.jpg",
+      "alt": "Дети играют с шариками"
+    },
+    {
+      "id": "p6",
+      "image": "/images/portfolio/studio-devochka-s-ukrasheniem.jpg",
+      "alt": "Студийное фото девочки с украшением"
+    },
+    {
+      "id": "p7",
+      "image": "/images/portfolio/kazak-temnee-variant.jpg",
+      "alt": "Студийное фото в образе казака, тёмный вариант"
+    },
+    {
+      "id": "p8",
+      "image": "/images/portfolio/ded-v-lesu-solovey-razboynik.jpg",
+      "alt": "Фотосессия в лесу в образе Соловья-разбойника"
+    },
+    {
+      "id": "p9",
+      "image": "/images/portfolio/ded-s-borodoy-rybu-v-setke.jpg",
+      "alt": "Художественное студийное фото"
+    },
+    {
+      "id": "p10",
+      "image": "/images/portfolio/vypusknoy.jpg",
+      "alt": "Фото с выпускного"
+    },
+    {
+      "id": "p11",
+      "image": "/images/portfolio/devushka-venok-iz-cvetov.jpg",
+      "alt": "Девушка в поле с венком из цветов"
+    },
+    {
+      "id": "p12",
+      "image": "/images/portfolio/muzhchina-s-gitaroy.jpg",
+      "alt": "Мужчина с гитарой"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "c1",
+      "label": "Адрес",
+      "value": "ул. Григория Соколова, 68, Малоярославец, Калужская область"
+    },
+    {
+      "id": "c2",
+      "label": "Телефон",
+      "value": "+7 (910) 865-30-29"
+    },
+    {
+      "id": "c3",
+      "label": "VK",
+      "value": "https://vk.com/zolgaphotographer"
+    },
+    {
+      "id": "c4",
+      "label": "Режим работы",
+      "value": "ежедневно, 10:00–19:00, по предварительной записи"
+    }
+  ]
+}

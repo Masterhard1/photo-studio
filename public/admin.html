@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Админка — Портретная</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body class="admin-body">
+
+  <div class="admin-login" id="login-screen">
+    <form class="admin-login__form" id="login-form">
+      <h1 class="admin-login__title">Вход в админку</h1>
+      <input type="password" id="login-password" placeholder="Пароль" autocomplete="current-password" required>
+      <button type="submit" class="btn">Войти</button>
+      <p class="admin-error" id="login-error"></p>
+    </form>
+  </div>
+
+  <div class="admin-dashboard" id="dashboard" hidden>
+    <header class="admin-header">
+      <span class="admin-header__title">Админка «Портретная»</span>
+      <div class="admin-header__actions">
+        <a href="/admin-help.html" target="_blank" class="admin-link">Инструкция</a>
+        <a href="/" target="_blank" class="admin-link">Открыть сайт →</a>
+        <button class="admin-btn admin-btn--ghost" id="logout-btn">Выйти</button>
+      </div>
+    </header>
+
+    <main class="admin-main">
+
+      <section class="admin-card">
+        <h2>Смена пароля</h2>
+        <form id="password-form" class="admin-form">
+          <label>Текущий пароль
+            <input type="password" id="current-password" required>
+          </label>
+          <label>Новый пароль
+            <input type="password" id="new-password" minlength="4" required>
+          </label>
+          <div class="strength-meter" id="strength-meter">
+            <div class="strength-meter__bar" id="strength-meter-bar"></div>
+          </div>
+          <span class="strength-meter__label" id="strength-meter-label"></span>
+          <button type="submit" class="admin-btn">Сменить пароль</button>
+          <span class="admin-status" id="password-status"></span>
+        </form>
+
+        <div id="backup-reset-block" hidden>
+          <h3>Восстановление основного входа</h3>
+          <p class="admin-hint">Ты вошла через резервный пароль. Если основной пароль забыт или потерян, можно сбросить его обратно на стандартный — <code>1234</code>.</p>
+          <button class="admin-btn admin-btn--outline" id="reset-primary-btn" type="button">Сбросить основной пароль на 1234</button>
+          <span class="admin-status" id="reset-primary-status"></span>
+        </div>
+      </section>
+
+      <section class="admin-card">
+        <h2>О студии</h2>
+        <form id="about-form" class="admin-form">
+          <label>Текст
+            <textarea id="about-text" rows="5" required></textarea>
+          </label>
+          <label>Фото
+            <img id="about-preview" class="admin-preview" alt="Текущее фото о студии">
+            <input type="file" id="about-file" accept="image/jpeg,image/png,image/webp">
+          </label>
+          <button type="submit" class="admin-btn">Сохранить</button>
+          <span class="admin-status" id="about-status"></span>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <h2>Услуги и цены</h2>
+        <div id="services-list" class="admin-list"></div>
+
+        <h3>Добавить услугу</h3>
+        <form id="service-add-form" class="admin-form">
+          <label>Название
+            <input type="text" id="new-service-title" required>
+          </label>
+          <label>Цена
+            <input type="text" id="new-service-price" placeholder="например, 5000 ₽ / час" required>
+          </label>
+          <label>Описание
+            <textarea id="new-service-description" rows="2" class="admin-autosize"></textarea>
+          </label>
+          <button type="submit" class="admin-btn">Добавить услугу</button>
+          <span class="admin-status" id="service-add-status"></span>
+        </form>
+
+        <h3>Информация об оплате и режиме работы</h3>
+        <form id="services-note-form" class="admin-form">
+          <label>Текст (показывается под услугами на сайте)
+            <textarea id="services-note-text" rows="2" class="admin-autosize"></textarea>
+          </label>
+          <button type="submit" class="admin-btn">Сохранить</button>
+          <span class="admin-status" id="services-note-status"></span>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <h2>Портфолио и главное фото</h2>
+        <p class="admin-hint">Главное фото показывается на самом верху сайта. Нажми «Сделать главным» на любой карточке ниже.</p>
+        <div id="portfolio-list" class="admin-photo-grid"></div>
+
+        <h3>Добавить фото</h3>
+        <form id="portfolio-add-form" class="admin-form">
+          <label>Файл
+            <input type="file" id="new-portfolio-file" accept="image/jpeg,image/png,image/webp" required>
+          </label>
+          <label>Описание (alt)
+            <input type="text" id="new-portfolio-alt" placeholder="например, Семейная съёмка в саду">
+          </label>
+          <button type="submit" class="admin-btn">Добавить в портфолио</button>
+          <span class="admin-status" id="portfolio-add-status"></span>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <h2>Контакты</h2>
+        <p class="admin-hint">Эти строки показываются в разделе «Контакты». Строка с названием «Телефон» также используется для кнопок звонка в шапке и наверху сайта.</p>
+        <div id="contacts-list-admin" class="admin-list"></div>
+
+        <h3>Добавить строку контактов</h3>
+        <form id="contact-add-form" class="admin-form">
+          <label>Название
+            <input type="text" id="new-contact-label" placeholder="например, Telegram" required>
+          </label>
+          <label>Значение
+            <input type="text" id="new-contact-value" placeholder="например, https://t.me/username" required>
+          </label>
+          <button type="submit" class="admin-btn">Добавить</button>
+          <span class="admin-status" id="contact-add-status"></span>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>

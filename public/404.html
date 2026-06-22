@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Страница не найдена — Портретная</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .not-found {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-alt) 100%);
+    }
+    .not-found__code {
+      font-family: var(--font-heading);
+      font-size: 96px;
+      color: var(--color-accent);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .not-found__title {
+      font-family: var(--font-heading);
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .not-found__text {
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="not-found">
+    <div>
+      <div class="not-found__code">404</div>
+      <h1 class="not-found__title">Такой страницы не существует</h1>
+      <p class="not-found__text">Возможно, страница была удалена или адрес введён неверно.</p>
+      <a class="btn" href="/">Вернуться на главную</a>
+    </div>
+  </div>
+</body>
+</html>
