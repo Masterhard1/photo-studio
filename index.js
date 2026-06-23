@@ -9,11 +9,9 @@ require('./server/env').loadEnvFile();
 const auth = require('./server/auth');
 const store = require('./server/contentStore');
 const imageStore = require('./server/imageStore');
-const bookingStore = require('./server/bookingStore');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
-const BOOKING_ENABLED = process.env.BOOKING_ENABLED === 'true';
 
 // base64 inflates raw bytes by 4/3; add headroom for the data: URL prefix and surrounding JSON fields
 const MAX_IMAGE_BODY_BYTES = Math.ceil((imageStore.MAX_BYTES * 4) / 3) + 64 * 1024;
@@ -105,29 +103,6 @@ function sendJson(res, statusCode, data) {
   res.end(body);
 }
 
-function localDateStr(date = new Date()) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function validateBookingInput(body) {
-  if (!body.clientName || !body.phone || !body.service) {
-    return { ok: false, error: 'Укажите имя, телефон и услугу' };
-  }
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(body.date || '')) {
-    return { ok: false, error: 'Некорректная дата' };
-  }
-  if (body.date < localDateStr()) {
-    return { ok: false, error: 'Дата не может быть в прошлом' };
-  }
-  if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(body.time || '')) {
-    return { ok: false, error: 'Некорректное время' };
-  }
-  return { ok: true };
-}
-
 function requireAuth(req, res) {
   if (!auth.isAuthed(req)) {
     sendJson(res, 401, { error: 'Не авторизовано' });
@@ -175,7 +150,7 @@ function serveStaticFile(req, res, pathname) {
 async function handleApi(req, res, pathname) {
   // Public
   if (pathname === '/api/content' && req.method === 'GET') {
-    sendJson(res, 200, { ...store.getContent(), bookingEnabled: BOOKING_ENABLED });
+    sendJson(res, 200, store.getContent());
     return;
   }
 
@@ -207,34 +182,6 @@ async function handleApi(req, res, pathname) {
     auth.destroySession(cookies.session);
     clearSessionCookie(req, res);
     sendJson(res, 200, { ok: true });
-    return;
-  }
-
-  if (pathname === '/api/bookings' && req.method === 'POST') {
-    if (!BOOKING_ENABLED) {
-      sendJson(res, 404, { error: 'Не найдено' });
-      return;
-    }
-    const body = await readJsonBody(req, 16 * 1024);
-    const check = validateBookingInput(body);
-    if (!check.ok) {
-      sendJson(res, 400, { error: check.error });
-      return;
-    }
-    try {
-      const booking = bookingStore.addBooking({
-        clientName: body.clientName,
-        phone: body.phone,
-        service: body.service,
-        date: body.date,
-        time: body.time,
-        comment: body.comment || '',
-        source: 'site',
-      });
-      sendJson(res, 201, booking);
-    } catch (err) {
-      sendJson(res, 409, { error: err.message });
-    }
     return;
   }
 
@@ -463,58 +410,6 @@ async function handleApi(req, res, pathname) {
     const ok = store.moveContact(contactMoveMatch[1], body.direction);
     if (!ok) {
       sendJson(res, 400, { error: 'Невозможно переместить' });
-      return;
-    }
-    sendJson(res, 200, { ok: true });
-    return;
-  }
-
-  if (pathname === '/api/admin/bookings' && req.method === 'GET') {
-    if (!BOOKING_ENABLED) {
-      sendJson(res, 404, { error: 'Не найдено' });
-      return;
-    }
-    sendJson(res, 200, bookingStore.listBookings());
-    return;
-  }
-
-  if (pathname === '/api/admin/bookings' && req.method === 'POST') {
-    if (!BOOKING_ENABLED) {
-      sendJson(res, 404, { error: 'Не найдено' });
-      return;
-    }
-    const body = await readJsonBody(req, 16 * 1024);
-    const check = validateBookingInput(body);
-    if (!check.ok) {
-      sendJson(res, 400, { error: check.error });
-      return;
-    }
-    try {
-      const booking = bookingStore.addBooking({
-        clientName: body.clientName,
-        phone: body.phone,
-        service: body.service,
-        date: body.date,
-        time: body.time,
-        comment: body.comment || '',
-        source: 'manual',
-      });
-      sendJson(res, 201, booking);
-    } catch (err) {
-      sendJson(res, 409, { error: err.message });
-    }
-    return;
-  }
-
-  const bookingMatch = pathname.match(/^\/api\/admin\/bookings\/(\d+)$/);
-  if (bookingMatch && req.method === 'DELETE') {
-    if (!BOOKING_ENABLED) {
-      sendJson(res, 404, { error: 'Не найдено' });
-      return;
-    }
-    const ok = bookingStore.deleteBooking(Number(bookingMatch[1]));
-    if (!ok) {
-      sendJson(res, 404, { error: 'Запись не найдена' });
       return;
     }
     sendJson(res, 200, { ok: true });
