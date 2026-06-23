@@ -21,6 +21,14 @@ const MAX_IMAGE_BODY_BYTES = Math.ceil((imageStore.MAX_BYTES * 4) / 3) + 64 * 10
 const LOGIN_RATE_LIMIT = { maxAttempts: 10, windowMs: 10 * 60 * 1000 };
 const loginAttempts = new Map();
 
+// Without this, an entry sits in memory forever for every IP that ever attempted a login.
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of loginAttempts) {
+    if (now > entry.resetAt) loginAttempts.delete(ip);
+  }
+}, 30 * 60 * 1000);
+
 function getClientIp(req) {
   return req.socket.remoteAddress || 'unknown';
 }
@@ -97,6 +105,13 @@ function sendJson(res, statusCode, data) {
   res.end(body);
 }
 
+function localDateStr(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function validateBookingInput(body) {
   if (!body.clientName || !body.phone || !body.service) {
     return { ok: false, error: 'Укажите имя, телефон и услугу' };
@@ -104,8 +119,7 @@ function validateBookingInput(body) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(body.date || '')) {
     return { ok: false, error: 'Некорректная дата' };
   }
-  const todayStr = new Date().toISOString().slice(0, 10);
-  if (body.date < todayStr) {
+  if (body.date < localDateStr()) {
     return { ok: false, error: 'Дата не может быть в прошлом' };
   }
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(body.time || '')) {

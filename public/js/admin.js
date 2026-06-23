@@ -142,7 +142,7 @@ function renderBookings() {
 
     const info = document.createElement('div');
     info.textContent =
-      `${formatBookingDate(booking.date)} ${booking.time} — ${booking.client_name}, ${booking.phone}, ` +
+      `${formatBookingDate(booking.date)} ${booking.time} — ${booking.clientName}, ${booking.phone}, ` +
       `${booking.service}${booking.comment ? ` («${booking.comment}»)` : ''} ` +
       `[${booking.source === 'site' ? 'с сайта' : 'добавлено вручную'}]`;
 
@@ -153,7 +153,7 @@ function renderBookings() {
     deleteBtn.className = 'admin-btn admin-btn--danger';
     deleteBtn.textContent = 'Удалить';
     deleteBtn.addEventListener('click', async () => {
-      if (!confirm(`Удалить запись «${booking.client_name}» на ${formatBookingDate(booking.date)} ${booking.time}?`)) return;
+      if (!confirm(`Удалить запись «${booking.clientName}» на ${formatBookingDate(booking.date)} ${booking.time}?`)) return;
       try {
         await api(`/api/admin/bookings/${booking.id}`, { method: 'DELETE' });
         currentBookings = currentBookings.filter((b) => b.id !== booking.id);

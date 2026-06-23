@@ -157,6 +157,13 @@ function syncPhoneLinks(contacts) {
   headerPhone.textContent = phoneContact.value;
 }
 
+function localDateStr(date = new Date()) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
 function setupBooking(content) {
   if (!content.bookingEnabled) return;
 
@@ -172,7 +179,7 @@ function setupBooking(content) {
   });
 
   const dateInput = document.getElementById('booking-date');
-  dateInput.min = new Date().toISOString().slice(0, 10);
+  dateInput.min = localDateStr();
 
   const form = document.getElementById('booking-form');
   const status = document.getElementById('booking-status');
@@ -214,9 +221,9 @@ function setupBooking(content) {
 fetch('/api/content')
   .then((res) => res.json())
   .then((content) => {
-    document.getElementById('hero-img').src = content.hero.image;
+    if (content.hero.image) document.getElementById('hero-img').src = content.hero.image;
     const aboutImg = document.getElementById('about-img');
-    aboutImg.src = content.about.image;
+    if (content.about.image) aboutImg.src = content.about.image;
     aboutImg.addEventListener('click', () => aboutImg.classList.toggle('is-zoomed'));
     document.getElementById('about-text').textContent = content.about.text;
     document.getElementById('services-note').textContent = content.servicesNote;

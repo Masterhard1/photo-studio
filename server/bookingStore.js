@@ -25,8 +25,23 @@ function getDb() {
   return db;
 }
 
+function mapRow(row) {
+  if (!row) return row;
+  return {
+    id: row.id,
+    clientName: row.client_name,
+    phone: row.phone,
+    service: row.service,
+    date: row.date,
+    time: row.time,
+    comment: row.comment,
+    source: row.source,
+    createdAt: row.created_at,
+  };
+}
+
 function listBookings() {
-  return getDb().prepare('SELECT * FROM bookings ORDER BY date, time').all();
+  return getDb().prepare('SELECT * FROM bookings ORDER BY date, time').all().map(mapRow);
 }
 
 function addBooking({ clientName, phone, service, date, time, comment, source }) {
@@ -35,7 +50,7 @@ function addBooking({ clientName, phone, service, date, time, comment, source })
       .prepare(`INSERT INTO bookings (client_name, phone, service, date, time, comment, source, created_at)
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
       .run(clientName, phone, service, date, time, comment || '', source, new Date().toISOString());
-    return getDb().prepare('SELECT * FROM bookings WHERE id = ?').get(result.lastInsertRowid);
+    return mapRow(getDb().prepare('SELECT * FROM bookings WHERE id = ?').get(result.lastInsertRowid));
   } catch (err) {
     if (err.message.includes('UNIQUE constraint failed')) {
       throw new Error('Это время уже занято — выберите другое');
