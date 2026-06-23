@@ -297,6 +297,10 @@
   grid-template-columns: 1fr 2fr auto;
 }
 
+.admin-list-item--booking {
+  grid-template-columns: 1fr auto;
+}
+
 .admin-list-item input,
 .admin-list-item textarea {
   font-family: var(--font-body);

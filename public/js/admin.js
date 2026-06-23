@@ -138,7 +138,7 @@ function renderBookings() {
   list.innerHTML = '';
   currentBookings.forEach((booking) => {
     const row = document.createElement('div');
-    row.className = 'admin-list-item';
+    row.className = 'admin-list-item admin-list-item--booking';
 
     const info = document.createElement('div');
     info.textContent =
