@@ -13,6 +13,9 @@ const imageStore = require('./server/imageStore');
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
+// base64 inflates raw bytes by 4/3; add headroom for the data: URL prefix and surrounding JSON fields
+const MAX_IMAGE_BODY_BYTES = Math.ceil((imageStore.MAX_BYTES * 4) / 3) + 64 * 1024;
+
 const LOGIN_RATE_LIMIT = { maxAttempts: 10, windowMs: 10 * 60 * 1000 };
 const loginAttempts = new Map();
 
@@ -211,11 +214,11 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/admin/about' && req.method === 'PUT') {
-    const body = await readJsonBody(req, 16 * 1024 * 1024);
+    const body = await readJsonBody(req, MAX_IMAGE_BODY_BYTES);
     let image;
     if (body.imageDataUrl) {
       const current = store.getContent().about.image;
-      image = imageStore.saveImageFromDataUrl(body.imageDataUrl, 'about');
+      image = await imageStore.saveImageFromDataUrl(body.imageDataUrl, 'about');
       imageStore.deleteImageByUrl(current);
     }
     const about = store.updateAbout({ text: body.text, image });
@@ -227,6 +230,13 @@ async function handleApi(req, res, pathname) {
     const body = await readJsonBody(req, 16 * 1024);
     const note = store.updateServicesNote(body.text || '');
     sendJson(res, 200, { text: note });
+    return;
+  }
+
+  if (pathname === '/api/admin/footer-legal' && req.method === 'PUT') {
+    const body = await readJsonBody(req, 16 * 1024);
+    const text = store.updateFooterLegal(body.text || '');
+    sendJson(res, 200, { text });
     return;
   }
 
@@ -291,12 +301,12 @@ async function handleApi(req, res, pathname) {
   }
 
   if (pathname === '/api/admin/portfolio' && req.method === 'POST') {
-    const body = await readJsonBody(req, 16 * 1024 * 1024);
+    const body = await readJsonBody(req, MAX_IMAGE_BODY_BYTES);
     if (!body.imageDataUrl) {
       sendJson(res, 400, { error: 'Не передано изображение' });
       return;
     }
-    const image = imageStore.saveImageFromDataUrl(body.imageDataUrl, 'portfolio');
+    const image = await imageStore.saveImageFromDataUrl(body.imageDataUrl, 'portfolio');
     const item = store.addPortfolioItem({ image, alt: body.alt || '' });
     sendJson(res, 201, item);
     return;
@@ -304,13 +314,13 @@ async function handleApi(req, res, pathname) {
 
   const portfolioMatch = pathname.match(/^\/api\/admin\/portfolio\/([a-zA-Z0-9]+)$/);
   if (portfolioMatch && req.method === 'PUT') {
-    const body = await readJsonBody(req, 16 * 1024 * 1024);
+    const body = await readJsonBody(req, MAX_IMAGE_BODY_BYTES);
     let image;
     let previousImage;
     if (body.imageDataUrl) {
       const existing = store.getContent().portfolio.find((p) => p.id === portfolioMatch[1]);
       previousImage = existing ? existing.image : undefined;
-      image = imageStore.saveImageFromDataUrl(body.imageDataUrl, 'portfolio');
+      image = await imageStore.saveImageFromDataUrl(body.imageDataUrl, 'portfolio');
     }
     const wasHero = image && previousImage && store.getContent().hero.image === previousImage;
     const updated = store.updatePortfolioItem(portfolioMatch[1], { image, alt: body.alt });

@@ -17,6 +17,7 @@ const DEFAULTS = {
   services: [],
   portfolio: [],
   contacts: [],
+  footerLegal: '',
 };
 
 function applyDefaults(content) {
@@ -30,6 +31,7 @@ function applyDefaults(content) {
   if (!Array.isArray(result.services)) result.services = [];
   if (!Array.isArray(result.portfolio)) result.portfolio = [];
   if (!Array.isArray(result.contacts)) result.contacts = [];
+  if (typeof result.footerLegal !== 'string') result.footerLegal = '';
   return result;
 }
 
@@ -64,6 +66,13 @@ function updateServicesNote(text) {
   content.servicesNote = text;
   save();
   return content.servicesNote;
+}
+
+function updateFooterLegal(text) {
+  const content = load();
+  content.footerLegal = text;
+  save();
+  return content.footerLegal;
 }
 
 function setHeroImage(image) {
@@ -184,6 +193,7 @@ module.exports = {
   getContent,
   updateAbout,
   updateServicesNote,
+  updateFooterLegal,
   setHeroImage,
   addService,
   updateService,

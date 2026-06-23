@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const sharp = require('sharp');
 
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const IMAGES_DIR = path.join(PUBLIC_DIR, 'images');
@@ -12,6 +13,7 @@ const ALLOWED_TYPES = {
 };
 
 const MAX_BYTES = 12 * 1024 * 1024;
+const MAX_DIMENSION = 2400;
 
 function matchesSignature(buffer, mime) {
   if (buffer.length < 12) return false;
@@ -30,7 +32,18 @@ function matchesSignature(buffer, mime) {
   return false;
 }
 
-function saveImageFromDataUrl(dataUrl, subfolder) {
+async function recompress(buffer, mime) {
+  let image = sharp(buffer).rotate();
+  const metadata = await image.metadata();
+  if ((metadata.width || 0) > MAX_DIMENSION || (metadata.height || 0) > MAX_DIMENSION) {
+    image = image.resize({ width: MAX_DIMENSION, height: MAX_DIMENSION, fit: 'inside', withoutEnlargement: true });
+  }
+  if (mime === 'image/jpeg') return image.jpeg({ quality: 82 }).toBuffer();
+  if (mime === 'image/png') return image.png({ compressionLevel: 9 }).toBuffer();
+  return image.webp({ quality: 82 }).toBuffer();
+}
+
+async function saveImageFromDataUrl(dataUrl, subfolder) {
   const match = /^data:(image\/[a-zA-Z+]+);base64,(.+)$/.exec(dataUrl || '');
   if (!match) {
     throw new Error('Некорректный формат изображения');
@@ -48,11 +61,18 @@ function saveImageFromDataUrl(dataUrl, subfolder) {
     throw new Error('Содержимое файла не соответствует заявленному типу изображения');
   }
 
+  let outputBuffer;
+  try {
+    outputBuffer = await recompress(buffer, mime);
+  } catch (err) {
+    throw new Error('Не удалось обработать изображение — файл повреждён или это не настоящая фотография');
+  }
+
   const dir = path.join(IMAGES_DIR, subfolder);
   fs.mkdirSync(dir, { recursive: true });
 
   const filename = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
-  fs.writeFileSync(path.join(dir, filename), buffer);
+  fs.writeFileSync(path.join(dir, filename), outputBuffer);
 
   return `/images/${subfolder}/${filename}`;
 }
@@ -66,4 +86,4 @@ function deleteImageByUrl(url) {
   }
 }
 
-module.exports = { saveImageFromDataUrl, deleteImageByUrl };
+module.exports = { saveImageFromDataUrl, deleteImageByUrl, MAX_BYTES };

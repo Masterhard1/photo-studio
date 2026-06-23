@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Админка — Портретная</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
@@ -24,7 +27,6 @@
     <header class="admin-header">
       <span class="admin-header__title">Админка «Портретная»</span>
       <div class="admin-header__actions">
-        <a href="/admin-help.html" target="_blank" class="admin-link">Инструкция</a>
         <a href="/" target="_blank" class="admin-link">Открыть сайт →</a>
         <button class="admin-btn admin-btn--ghost" id="logout-btn">Выйти</button>
       </div>
@@ -138,6 +140,18 @@
           </label>
           <button type="submit" class="admin-btn">Добавить</button>
           <span class="admin-status" id="contact-add-status"></span>
+        </form>
+      </section>
+
+      <section class="admin-card">
+        <h2>Подвал сайта (юридическая информация)</h2>
+        <p class="admin-hint">Этот текст показывается внизу сайта под копирайтом — например, ФИО, ИНН, форма налогообложения. Перенос строки сохраняется как есть.</p>
+        <form id="footer-legal-form" class="admin-form">
+          <label>Текст
+            <textarea id="footer-legal-text" rows="2" class="admin-autosize"></textarea>
+          </label>
+          <button type="submit" class="admin-btn">Сохранить</button>
+          <span class="admin-status" id="footer-legal-status"></span>
         </form>
       </section>
 

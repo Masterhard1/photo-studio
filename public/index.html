@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Портретная — фотостудия в Малоярославце</title>
+  <meta name="description" content="Фотостудия «Портретная» в Малоярославце: семейные, детские и портретные съёмки. Тепло, бережно, с вниманием к деталям.">
+  <meta property="og:title" content="Фотостудия «Портретная» — Малоярославец">
+  <meta property="og:description" content="Семейные, детские и портретные съёмки в Малоярославце. Тепло, бережно, с вниманием к деталям.">
+  <meta property="og:image" content="/images/brand/og-image.jpg">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
@@ -13,6 +21,12 @@
   <header class="header">
     <div class="container header__inner">
       <a class="logo" href="#">Портретная</a>
+      <nav class="header__nav">
+        <a href="#about">О студии</a>
+        <a href="#services">Услуги</a>
+        <a href="#portfolio">Портфолио</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
       <a class="header__phone" href="tel:+79108653029" id="header-phone">+7 (910) 865-30-29</a>
     </div>
   </header>
@@ -29,7 +43,7 @@
     </div>
   </section>
 
-  <section class="section about" id="about">
+  <section class="section reveal about" id="about">
     <div class="container">
       <h2 class="section__title">О студии</h2>
       <div class="about__inner">
@@ -41,7 +55,7 @@
     </div>
   </section>
 
-  <section class="section services" id="services">
+  <section class="section reveal services" id="services">
     <div class="container">
       <h2 class="section__title">Услуги и цены</h2>
       <div class="services__grid" id="services-grid"></div>
@@ -49,14 +63,14 @@
     </div>
   </section>
 
-  <section class="section portfolio" id="portfolio">
+  <section class="section reveal portfolio" id="portfolio">
     <div class="container">
       <h2 class="section__title">Портфолио</h2>
       <div class="portfolio__grid" id="portfolio-grid"></div>
     </div>
   </section>
 
-  <section class="section contacts" id="contacts">
+  <section class="section reveal contacts" id="contacts">
     <div class="container contacts__inner">
       <div class="contacts__info">
         <h2 class="section__title">Контакты</h2>
@@ -75,10 +89,7 @@
   <footer class="footer">
     <div class="container">
       <p>© <span id="year"></span> Фотостудия «Портретная». Малоярославец.</p>
-      <p class="footer__legal">
-        Захарова Ольга Владимировна, ИНН — уточняется — самозанятая, плательщик налога на профессиональный доход (НПД).<br>
-        Сайт не является публичной офертой.
-      </p>
+      <p class="footer__legal" id="footer-legal"></p>
     </div>
   </footer>
 

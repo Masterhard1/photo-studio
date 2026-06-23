@@ -108,6 +108,9 @@ async function loadContent() {
   const servicesNoteEl = document.getElementById('services-note-text');
   servicesNoteEl.value = currentContent.servicesNote || '';
   autosize(servicesNoteEl);
+  const footerLegalEl = document.getElementById('footer-legal-text');
+  footerLegalEl.value = currentContent.footerLegal || '';
+  autosize(footerLegalEl);
   renderServices();
   renderPortfolio();
   renderContacts();
@@ -381,6 +384,19 @@ document.getElementById('services-note-form').addEventListener('submit', async (
   try {
     await api('/api/admin/services-note', { method: 'PUT', body: JSON.stringify({ text }) });
     currentContent.servicesNote = text;
+    setStatus(status, 'Сохранено', false);
+  } catch (err) {
+    setStatus(status, err.message, true);
+  }
+});
+
+document.getElementById('footer-legal-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const status = document.getElementById('footer-legal-status');
+  const text = document.getElementById('footer-legal-text').value;
+  try {
+    await api('/api/admin/footer-legal', { method: 'PUT', body: JSON.stringify({ text }) });
+    currentContent.footerLegal = text;
     setStatus(status, 'Сохранено', false);
   } catch (err) {
     setStatus(status, err.message, true);
