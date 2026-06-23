@@ -143,6 +143,36 @@
         </form>
       </section>
 
+      <section class="admin-card" id="bookings-section" hidden>
+        <h2>Записи клиентов</h2>
+        <p class="admin-hint">Здесь все записи на съёмку — и те, что клиенты оставили сами на сайте, и те, что ты добавила вручную (например, кто-то записался по телефону). Если клиент сказал, что не приедет — удали его запись, чтобы освободить время.</p>
+        <div id="bookings-list" class="admin-list"></div>
+
+        <h3>Добавить запись вручную</h3>
+        <form id="booking-add-form" class="admin-form">
+          <label>Имя клиента
+            <input type="text" id="new-booking-name" required>
+          </label>
+          <label>Телефон
+            <input type="text" id="new-booking-phone" required>
+          </label>
+          <label>Услуга
+            <input type="text" id="new-booking-service" required>
+          </label>
+          <label>Дата
+            <input type="date" id="new-booking-date" required>
+          </label>
+          <label>Время
+            <input type="time" id="new-booking-time" required>
+          </label>
+          <label>Комментарий
+            <textarea id="new-booking-comment" rows="2" class="admin-autosize"></textarea>
+          </label>
+          <button type="submit" class="admin-btn">Добавить запись</button>
+          <span class="admin-status" id="booking-add-status"></span>
+        </form>
+      </section>
+
       <section class="admin-card">
         <h2>Подвал сайта (юридическая информация)</h2>
         <p class="admin-hint">Этот текст показывается внизу сайта под копирайтом — например, ФИО, ИНН, форма налогообложения. Перенос строки сохраняется как есть.</p>

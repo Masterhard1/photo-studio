@@ -114,6 +114,59 @@ async function loadContent() {
   renderServices();
   renderPortfolio();
   renderContacts();
+
+  document.getElementById('bookings-section').hidden = !currentContent.bookingEnabled;
+  if (currentContent.bookingEnabled) {
+    loadBookings();
+  }
+}
+
+let currentBookings = [];
+
+function formatBookingDate(date) {
+  const [year, month, day] = date.split('-');
+  return `${day}.${month}.${year}`;
+}
+
+async function loadBookings() {
+  currentBookings = await api('/api/admin/bookings');
+  renderBookings();
+}
+
+function renderBookings() {
+  const list = document.getElementById('bookings-list');
+  list.innerHTML = '';
+  currentBookings.forEach((booking) => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+
+    const info = document.createElement('div');
+    info.textContent =
+      `${formatBookingDate(booking.date)} ${booking.time} — ${booking.client_name}, ${booking.phone}, ` +
+      `${booking.service}${booking.comment ? ` («${booking.comment}»)` : ''} ` +
+      `[${booking.source === 'site' ? 'с сайта' : 'добавлено вручную'}]`;
+
+    const actions = document.createElement('div');
+    actions.className = 'admin-list-item__actions';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'admin-btn admin-btn--danger';
+    deleteBtn.textContent = 'Удалить';
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm(`Удалить запись «${booking.client_name}» на ${formatBookingDate(booking.date)} ${booking.time}?`)) return;
+      try {
+        await api(`/api/admin/bookings/${booking.id}`, { method: 'DELETE' });
+        currentBookings = currentBookings.filter((b) => b.id !== booking.id);
+        renderBookings();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    actions.append(deleteBtn);
+    row.append(info, actions);
+    list.appendChild(row);
+  });
 }
 
 function renderServices() {
@@ -460,6 +513,28 @@ api('/api/session').then((data) => {
     showDashboard(data.slot);
   } else {
     showLogin();
+  }
+});
+
+document.getElementById('booking-add-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const status = document.getElementById('booking-add-status');
+  const payload = {
+    clientName: document.getElementById('new-booking-name').value,
+    phone: document.getElementById('new-booking-phone').value,
+    service: document.getElementById('new-booking-service').value,
+    date: document.getElementById('new-booking-date').value,
+    time: document.getElementById('new-booking-time').value,
+    comment: document.getElementById('new-booking-comment').value,
+  };
+  try {
+    const booking = await api('/api/admin/bookings', { method: 'POST', body: JSON.stringify(payload) });
+    currentBookings.push(booking);
+    renderBookings();
+    e.target.reset();
+    setStatus(status, 'Запись добавлена', false);
+  } catch (err) {
+    setStatus(status, err.message, true);
   }
 });
 

@@ -157,6 +157,60 @@ function syncPhoneLinks(contacts) {
   headerPhone.textContent = phoneContact.value;
 }
 
+function setupBooking(content) {
+  if (!content.bookingEnabled) return;
+
+  document.getElementById('booking').hidden = false;
+  document.getElementById('hero-cta').href = '#booking';
+
+  const serviceSelect = document.getElementById('booking-service');
+  content.services.forEach((service) => {
+    const option = document.createElement('option');
+    option.value = service.title;
+    option.textContent = service.title;
+    serviceSelect.appendChild(option);
+  });
+
+  const dateInput = document.getElementById('booking-date');
+  dateInput.min = new Date().toISOString().slice(0, 10);
+
+  const form = document.getElementById('booking-form');
+  const status = document.getElementById('booking-status');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = '';
+    status.classList.remove('is-error', 'is-success');
+
+    const payload = {
+      clientName: document.getElementById('booking-name').value,
+      phone: document.getElementById('booking-phone').value,
+      service: serviceSelect.value,
+      date: dateInput.value,
+      time: document.getElementById('booking-time').value,
+      comment: document.getElementById('booking-comment').value,
+    };
+
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Не удалось записаться');
+      }
+      form.reset();
+      status.textContent = 'Заявка отправлена! Мы свяжемся с вами для подтверждения.';
+      status.classList.add('is-success');
+    } catch (err) {
+      status.textContent = err.message;
+      status.classList.add('is-error');
+    }
+  });
+}
+
 fetch('/api/content')
   .then((res) => res.json())
   .then((content) => {
@@ -172,6 +226,7 @@ fetch('/api/content')
     renderContacts(content.contacts);
     syncPhoneLinks(content.contacts);
     setupLightbox();
+    setupBooking(content);
   })
   .catch((err) => {
     console.error('Не удалось загрузить контент сайта', err);
