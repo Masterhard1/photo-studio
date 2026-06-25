@@ -12,6 +12,8 @@ const ALLOWED_TYPES = {
   'image/webp': 'webp',
 };
 
+const ALLOWED_SUBFOLDERS = new Set(['portfolio', 'about']);
+
 const MAX_BYTES = 12 * 1024 * 1024;
 const MAX_DIMENSION = 2400;
 
@@ -52,6 +54,9 @@ async function saveImageFromDataUrl(dataUrl, subfolder) {
   const ext = ALLOWED_TYPES[mime];
   if (!ext) {
     throw new Error('Поддерживаются только JPEG, PNG и WebP');
+  }
+  if (!ALLOWED_SUBFOLDERS.has(subfolder)) {
+    throw new Error('Недопустимая папка изображения');
   }
   const buffer = Buffer.from(base64, 'base64');
   if (buffer.length > MAX_BYTES) {

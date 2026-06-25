@@ -37,7 +37,13 @@ function applyDefaults(content) {
 
 function load() {
   if (!cache) {
-    const raw = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+    let raw;
+    try {
+      raw = JSON.parse(fs.readFileSync(CONTENT_PATH, 'utf8'));
+    } catch (err) {
+      console.error('[contentStore] Не удалось прочитать content.json:', err.message);
+      raw = {};
+    }
     cache = applyDefaults(raw);
   }
   return cache;
