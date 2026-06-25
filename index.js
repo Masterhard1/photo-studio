@@ -56,6 +56,29 @@ function clearSessionCookie(req, res) {
   res.setHeader('Set-Cookie', `session=; HttpOnly; Path=/; Max-Age=0; SameSite=Lax${secure}`);
 }
 
+function setSecurityHeaders(req, res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self'",
+      "style-src 'self' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self'",
+      "frame-src https://yandex.ru",
+      "connect-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+    ].join('; ')
+  );
+  if (isHttpsRequest(req)) {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+}
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -428,9 +451,11 @@ try {
 
 function requestListener(req, res) {
   const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+  setSecurityHeaders(req, res);
 
   if (pathname.startsWith('/api/')) {
     handleApi(req, res, pathname).catch((err) => {
+      console.error('[API error]', req.method, pathname, err);
       sendJson(res, 400, { error: err.message || 'Ошибка запроса' });
     });
     return;
