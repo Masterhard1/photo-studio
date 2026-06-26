@@ -3,8 +3,8 @@
   --color-bg-alt: #f2e7d2;
   --color-text: #4d3d28;
   --color-text-muted: #8a795f;
-  --color-accent: #d39a4e;
-  --color-accent-dark: #b67d30;
+  --color-accent: #dc8e3b;
+  --color-accent-dark: #bf7a2b;
   --color-dark: #6e4824;
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
@@ -219,7 +219,7 @@ a {
 .btn {
   display: inline-block;
   padding: 14px 32px;
-  background: #c98d3c;
+  background: #d1843a;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -231,7 +231,7 @@ a {
 }
 
 .btn:hover {
-  background: #b2792c;
+  background: #bb6f28;
 }
 
 .hero__scroll-hint {
