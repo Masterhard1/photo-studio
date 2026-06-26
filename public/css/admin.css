@@ -37,10 +37,12 @@
 
 .admin-login__form input {
   padding: 12px 14px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   font-size: 15px;
   font-family: var(--font-body);
+  background: var(--color-bg-alt);
+  color: var(--color-text);
 }
 
 .admin-error {
@@ -131,7 +133,7 @@
   opacity: 0.35;
   cursor: not-allowed;
   background: var(--color-bg-alt);
-  border-color: rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
   color: var(--color-text-muted);
 }
 
@@ -165,7 +167,7 @@
   background: var(--color-bg);
   border-radius: 14px;
   padding: 28px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .admin-card h2 {
@@ -207,8 +209,9 @@
   font-family: var(--font-body);
   font-size: 15px;
   color: var(--color-text);
+  background: var(--color-bg-alt);
   padding: 10px 12px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   resize: vertical;
 }
@@ -221,7 +224,7 @@
 .strength-meter {
   height: 6px;
   border-radius: 4px;
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
   overflow: hidden;
   margin-top: -4px;
 }
@@ -301,8 +304,10 @@
 .admin-list-item textarea {
   font-family: var(--font-body);
   font-size: 14px;
+  color: var(--color-text);
+  background: var(--color-bg);
   padding: 8px 10px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   width: 100%;
 }
@@ -351,8 +356,10 @@
 
 .admin-photo-card input {
   font-size: 13px;
+  color: var(--color-text);
+  background: var(--color-bg);
   padding: 6px 8px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
 }
 
