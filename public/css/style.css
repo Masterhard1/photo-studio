@@ -79,6 +79,13 @@ a {
 .header__phone {
   font-weight: 500;
   color: var(--color-accent);
+  white-space: nowrap;
+}
+
+@media (max-width: 420px) {
+  .header__phone {
+    display: none;
+  }
 }
 
 .header__phone:hover {
