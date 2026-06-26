@@ -1,11 +1,11 @@
 :root {
-  --color-bg: #17130f;
-  --color-bg-alt: #1f1a14;
-  --color-text: #f3ece4;
-  --color-text-muted: #9d8e7e;
-  --color-accent: #d9a441;
-  --color-accent-dark: #c08a28;
-  --color-dark: #0f0c09;
+  --color-bg: #faf6f1;
+  --color-bg-alt: #f1e9e0;
+  --color-text: #2e2a26;
+  --color-text-muted: #6b625a;
+  --color-accent: #c17a5e;
+  --color-accent-dark: #a8603f;
+  --color-dark: #573a2c;
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
 }
@@ -193,7 +193,7 @@ a {
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(10, 7, 4, 0.25) 0%, rgba(10, 7, 4, 0.1) 40%, rgba(10, 7, 4, 0.75) 100%);
+  background: linear-gradient(180deg, rgba(87, 58, 44, 0.55) 0%, rgba(87, 58, 44, 0.35) 35%, rgba(87, 58, 44, 0.8) 100%);
 }
 
 .hero__inner {
@@ -338,7 +338,7 @@ a {
 
 .service-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(217, 164, 65, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
 }
 
 .service-card h3 {
@@ -488,7 +488,7 @@ a {
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(8, 5, 3, 0.96);
+  background: rgba(20, 14, 10, 0.92);
   display: flex;
   align-items: center;
   justify-content: center;
