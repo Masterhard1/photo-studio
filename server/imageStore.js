@@ -85,7 +85,7 @@ async function saveImageFromDataUrl(dataUrl, subfolder) {
 function deleteImageByUrl(url) {
   if (!url || !url.startsWith('/images/')) return;
   const resolved = path.normalize(path.join(PUBLIC_DIR, url));
-  if (!resolved.startsWith(IMAGES_DIR)) return;
+  if (resolved !== IMAGES_DIR && !resolved.startsWith(IMAGES_DIR + path.sep)) return;
   if (fs.existsSync(resolved)) {
     fs.unlinkSync(resolved);
   }
