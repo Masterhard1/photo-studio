@@ -65,8 +65,8 @@ function setSecurityHeaders(req, res) {
     [
       "default-src 'self'",
       "script-src 'self'",
-      "style-src 'self' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
+      "style-src 'self'",
+      "font-src 'self'",
       "img-src 'self'",
       "frame-src https://yandex.ru",
       "connect-src 'self'",
