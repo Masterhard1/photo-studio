@@ -219,7 +219,7 @@ a {
 .btn {
   display: inline-block;
   padding: 14px 32px;
-  background: #b97f34;
+  background: #c98d3c;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -231,7 +231,7 @@ a {
 }
 
 .btn:hover {
-  background: #9c6724;
+  background: #b2792c;
 }
 
 .hero__scroll-hint {
