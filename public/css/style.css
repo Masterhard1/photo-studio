@@ -1,11 +1,11 @@
 :root {
-  --color-bg: #f5f7f2;
-  --color-bg-alt: #e8ebe1;
-  --color-text: #1d2118;
-  --color-text-muted: #6b7062;
-  --color-accent: #5f7856;
-  --color-accent-dark: #496043;
-  --color-dark: #2b3728;
+  --color-bg: #faf6f1;
+  --color-bg-alt: #f1e9e0;
+  --color-text: #2e2a26;
+  --color-text-muted: #6b625a;
+  --color-accent: #c17a5e;
+  --color-accent-dark: #a8603f;
+  --color-dark: #573a2c;
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
 }
@@ -193,7 +193,7 @@ a {
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(30, 40, 24, 0.45) 0%, rgba(30, 40, 24, 0.25) 35%, rgba(30, 40, 24, 0.78) 100%);
+  background: linear-gradient(180deg, rgba(87, 58, 44, 0.55) 0%, rgba(87, 58, 44, 0.35) 35%, rgba(87, 58, 44, 0.8) 100%);
 }
 
 .hero__inner {
