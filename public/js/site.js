@@ -25,6 +25,21 @@ document.getElementById('year').textContent = new Date().getFullYear();
   });
 }());
 
+(function setupScrollHint() {
+  const hint = document.getElementById('hero-scroll-hint');
+  if (!hint) return;
+  hint.addEventListener('click', () => {
+    document.getElementById('about').scrollIntoView({ behavior: 'smooth' });
+  });
+  function onScroll() {
+    if (window.scrollY > 60) {
+      hint.classList.add('is-hidden');
+      window.removeEventListener('scroll', onScroll);
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+}());
+
 function setupScrollReveal() {
   const targets = document.querySelectorAll('.reveal');
   if (!('IntersectionObserver' in window)) {
