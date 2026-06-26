@@ -1,5 +1,30 @@
 document.getElementById('year').textContent = new Date().getFullYear();
 
+(function setupBurgerMenu() {
+  const burger = document.getElementById('nav-burger');
+  const nav = document.getElementById('header-nav');
+  if (!burger || !nav) return;
+
+  function close() {
+    nav.classList.remove('is-open');
+    burger.classList.remove('is-open');
+    burger.setAttribute('aria-expanded', 'false');
+  }
+
+  burger.addEventListener('click', () => {
+    const opening = !nav.classList.contains('is-open');
+    nav.classList.toggle('is-open', opening);
+    burger.classList.toggle('is-open', opening);
+    burger.setAttribute('aria-expanded', String(opening));
+  });
+
+  nav.querySelectorAll('a').forEach((link) => link.addEventListener('click', close));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}());
+
 function setupScrollReveal() {
   const targets = document.querySelectorAll('.reveal');
   if (!('IntersectionObserver' in window)) {
