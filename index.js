@@ -467,7 +467,7 @@ function requestListener(req, res) {
     return;
   }
 
-  if (pathname === '/' && req.method === 'GET') {
+  if (pathname === '/' && req.method === 'GET' && !auth.isAuthed(req)) {
     try { statsStore.recordHit(getClientIp(req)); } catch (e) { /* never block page load */ }
   }
 
