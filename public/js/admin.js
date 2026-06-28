@@ -99,12 +99,11 @@ async function loadStats() {
     }
     statsCard.hidden = false;
 
-    const backupControls = document.getElementById('stats-backup-controls');
-    if (currentSlot === 'backup') {
-      backupControls.hidden = false;
+    const isBackup = currentSlot === 'backup';
+    document.getElementById('stats-backup-controls').hidden = !isBackup;
+    document.getElementById('stats-reset-btn').hidden = !isBackup;
+    if (isBackup) {
       document.getElementById('stats-hide-for-primary').checked = stats.hideFromPrimary;
-    } else {
-      backupControls.hidden = true;
     }
     const days = Object.entries(stats.days).sort(([a], [b]) => b.localeCompare(a));
     const last7 = days.slice(0, 7);
