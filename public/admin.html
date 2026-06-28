@@ -33,13 +33,20 @@
 
     <main class="admin-main">
 
-      <section class="admin-card">
+      <section class="admin-card" id="stats-card">
         <h2>Статистика посещений</h2>
         <div id="stats-block">
           <p class="admin-hint">Загружается…</p>
         </div>
         <button class="admin-btn admin-btn--danger" id="stats-reset-btn" type="button" style="margin-top:16px">Сбросить статистику</button>
         <span class="admin-status" id="stats-reset-status"></span>
+        <div id="stats-backup-controls" hidden style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.07)">
+          <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="stats-hide-for-primary">
+            Скрыть статистику от мамы
+          </label>
+          <p class="admin-hint" style="margin-top:6px">Если включено — раздел статистики не показывается в основном входе.</p>
+        </div>
       </section>
 
       <section class="admin-card">

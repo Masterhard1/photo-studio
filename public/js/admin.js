@@ -89,8 +89,20 @@ function setStatus(el, message, isError) {
 
 async function loadStats() {
   const block = document.getElementById('stats-block');
+  const statsCard = document.getElementById('stats-card');
   try {
     const stats = await api('/api/admin/stats');
+
+    if (currentSlot === 'primary' && stats.hideFromPrimary) {
+      statsCard.hidden = true;
+      return;
+    }
+    statsCard.hidden = false;
+
+    if (currentSlot === 'backup') {
+      document.getElementById('stats-backup-controls').hidden = false;
+      document.getElementById('stats-hide-for-primary').checked = stats.hideFromPrimary;
+    }
     const days = Object.entries(stats.days).sort(([a], [b]) => b.localeCompare(a));
     const last7 = days.slice(0, 7);
     const viewsLast7 = last7.reduce((sum, [, d]) => sum + d.views, 0);
@@ -116,6 +128,15 @@ async function loadStats() {
   }
 }
 
+document.getElementById('stats-hide-for-primary').addEventListener('change', async (e) => {
+  try {
+    await api('/api/admin/stats/settings', { method: 'PUT', body: JSON.stringify({ hideFromPrimary: e.target.checked }) });
+  } catch (err) {
+    e.target.checked = !e.target.checked;
+    alert(err.message);
+  }
+});
+
 document.getElementById('stats-reset-btn').addEventListener('click', async () => {
   if (!confirm('Сбросить всю статистику посещений? Это действие нельзя отменить.')) return;
   const status = document.getElementById('stats-reset-status');
@@ -129,6 +150,7 @@ document.getElementById('stats-reset-btn').addEventListener('click', async () =>
 });
 
 function showDashboard(slot) {
+  currentSlot = slot;
   loginScreen.hidden = true;
   dashboard.hidden = false;
   document.getElementById('backup-reset-block').hidden = slot !== 'backup';
@@ -142,6 +164,7 @@ function showLogin() {
 }
 
 let currentContent = null;
+let currentSlot = null;
 
 async function loadContent() {
   currentContent = await api('/api/content');

@@ -455,6 +455,17 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (pathname === '/api/admin/stats/settings' && req.method === 'PUT') {
+    if (auth.getSlot(req) !== 'backup') {
+      sendJson(res, 403, { error: 'Доступно только из резервного входа' });
+      return;
+    }
+    const body = await readJsonBody(req, 1024);
+    statsStore.setHideFromPrimary(!!body.hideFromPrimary);
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
   sendJson(res, 404, { error: 'Не найдено' });
 }
 

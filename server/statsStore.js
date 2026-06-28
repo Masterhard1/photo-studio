@@ -28,6 +28,7 @@ function load() {
       cache.ipSalt = crypto.randomBytes(32).toString('hex');
       save(); // write immediately — salt must survive a restart
     }
+    if (typeof cache.hideFromPrimary !== 'boolean') cache.hideFromPrimary = false;
   }
   return cache;
 }
@@ -99,15 +100,21 @@ function getStats() {
   for (const [day, val] of Object.entries(data.days)) {
     days[day] = { views: val.views, uniq: val.uniq };
   }
-  return { totalViews: data.totalViews, days };
+  return { totalViews: data.totalViews, days, hideFromPrimary: data.hideFromPrimary };
 }
 
 function resetStats() {
-  load(); // ensure cache exists
+  load();
   cache.totalViews = 0;
   cache.days = {};
   dirty = false;
   save();
 }
 
-module.exports = { recordHit, getStats, resetStats };
+function setHideFromPrimary(value) {
+  load();
+  cache.hideFromPrimary = !!value;
+  save(); // setting change — write immediately, don't defer
+}
+
+module.exports = { recordHit, getStats, resetStats, setHideFromPrimary };
