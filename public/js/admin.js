@@ -99,9 +99,12 @@ async function loadStats() {
     }
     statsCard.hidden = false;
 
+    const backupControls = document.getElementById('stats-backup-controls');
     if (currentSlot === 'backup') {
-      document.getElementById('stats-backup-controls').hidden = false;
+      backupControls.hidden = false;
       document.getElementById('stats-hide-for-primary').checked = stats.hideFromPrimary;
+    } else {
+      backupControls.hidden = true;
     }
     const days = Object.entries(stats.days).sort(([a], [b]) => b.localeCompare(a));
     const last7 = days.slice(0, 7);
@@ -129,11 +132,13 @@ async function loadStats() {
 }
 
 document.getElementById('stats-hide-for-primary').addEventListener('change', async (e) => {
+  const status = document.getElementById('stats-hide-status');
   try {
     await api('/api/admin/stats/settings', { method: 'PUT', body: JSON.stringify({ hideFromPrimary: e.target.checked }) });
+    setStatus(status, e.target.checked ? 'Скрыто — мама статистику не видит' : 'Статистика снова видна маме', false);
   } catch (err) {
     e.target.checked = !e.target.checked;
-    alert(err.message);
+    setStatus(status, err.message, true);
   }
 });
 
