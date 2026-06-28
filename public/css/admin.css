@@ -374,6 +374,56 @@
   font-weight: 600;
 }
 
+/* Stats */
+.stats-totals {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+
+.stats-total-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stats-big {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  line-height: 1;
+  color: var(--color-accent-dark);
+}
+
+.stats-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+}
+
+.stats-table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stats-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 @media (max-width: 640px) {
   .admin-list-item {
     grid-template-columns: 1fr;

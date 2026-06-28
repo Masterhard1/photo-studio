@@ -9,6 +9,7 @@ require('./server/env').loadEnvFile();
 const auth = require('./server/auth');
 const store = require('./server/contentStore');
 const imageStore = require('./server/imageStore');
+const statsStore = require('./server/statsStore');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -439,6 +440,11 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (pathname === '/api/admin/stats' && req.method === 'GET') {
+    sendJson(res, 200, statsStore.getStats());
+    return;
+  }
+
   sendJson(res, 404, { error: 'Не найдено' });
 }
 
@@ -459,6 +465,10 @@ function requestListener(req, res) {
       sendJson(res, 400, { error: err.message || 'Ошибка запроса' });
     });
     return;
+  }
+
+  if (pathname === '/' && req.method === 'GET') {
+    try { statsStore.recordHit(getClientIp(req)); } catch (e) { /* never block page load */ }
   }
 
   serveStaticFile(req, res, pathname);

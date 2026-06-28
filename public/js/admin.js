@@ -87,11 +87,41 @@ function setStatus(el, message, isError) {
   }
 }
 
+async function loadStats() {
+  const block = document.getElementById('stats-block');
+  try {
+    const stats = await api('/api/admin/stats');
+    const days = Object.entries(stats.days).sort(([a], [b]) => b.localeCompare(a));
+    const last7 = days.slice(0, 7);
+    const viewsLast7 = last7.reduce((sum, [, d]) => sum + d.views, 0);
+
+    let rows = '';
+    for (const [day, d] of last7) {
+      const [y, m, dd] = day.split('-');
+      rows += `<tr><td>${dd}.${m}.${y}</td><td>${d.views}</td><td>${d.uniq}</td></tr>`;
+    }
+
+    block.innerHTML = `
+      <div class="stats-totals">
+        <div class="stats-total-item"><span class="stats-big">${stats.totalViews}</span><span class="stats-label">всего просмотров</span></div>
+        <div class="stats-total-item"><span class="stats-big">${viewsLast7}</span><span class="stats-label">за последние 7 дней</span></div>
+      </div>
+      ${rows ? `<table class="stats-table">
+        <thead><tr><th>Дата</th><th>Просмотры</th><th>Уникальных</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>` : '<p class="admin-hint">Пока нет данных — посетите главную страницу, чтобы появилась первая запись.</p>'}
+    `;
+  } catch {
+    block.innerHTML = '<p class="admin-hint">Не удалось загрузить статистику.</p>';
+  }
+}
+
 function showDashboard(slot) {
   loginScreen.hidden = true;
   dashboard.hidden = false;
   document.getElementById('backup-reset-block').hidden = slot !== 'backup';
   loadContent();
+  loadStats();
 }
 
 function showLogin() {
