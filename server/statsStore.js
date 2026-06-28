@@ -102,4 +102,12 @@ function getStats() {
   return { totalViews: data.totalViews, days };
 }
 
-module.exports = { recordHit, getStats };
+function resetStats() {
+  load(); // ensure cache exists
+  cache.totalViews = 0;
+  cache.days = {};
+  dirty = false;
+  save();
+}
+
+module.exports = { recordHit, getStats, resetStats };

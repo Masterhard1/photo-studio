@@ -116,6 +116,18 @@ async function loadStats() {
   }
 }
 
+document.getElementById('stats-reset-btn').addEventListener('click', async () => {
+  if (!confirm('Сбросить всю статистику посещений? Это действие нельзя отменить.')) return;
+  const status = document.getElementById('stats-reset-status');
+  try {
+    await api('/api/admin/stats', { method: 'DELETE' });
+    setStatus(status, 'Статистика сброшена', false);
+    loadStats();
+  } catch (err) {
+    setStatus(status, err.message, true);
+  }
+});
+
 function showDashboard(slot) {
   loginScreen.hidden = true;
   dashboard.hidden = false;

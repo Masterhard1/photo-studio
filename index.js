@@ -449,6 +449,12 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  if (pathname === '/api/admin/stats' && req.method === 'DELETE') {
+    statsStore.resetStats();
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
   sendJson(res, 404, { error: 'Не найдено' });
 }
 
