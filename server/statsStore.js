@@ -20,6 +20,10 @@ function load() {
     }
     if (typeof cache.totalViews !== 'number') cache.totalViews = 0;
     if (!cache.days || typeof cache.days !== 'object') cache.days = {};
+    if (typeof cache.ipSalt !== 'string' || cache.ipSalt.length < 32) {
+      cache.ipSalt = crypto.randomBytes(32).toString('hex');
+      save();
+    }
   }
   return cache;
 }
@@ -45,8 +49,7 @@ function recordHit(ip) {
   data.totalViews += 1;
   if (!data.days[day]) data.days[day] = { views: 0, uniq: 0, ips: [] };
   data.days[day].views += 1;
-  // Store truncated SHA-256 of IP — not reversible, not PII in a meaningful sense
-  const ipHash = crypto.createHash('sha256').update(ip || '').digest('hex').slice(0, 16);
+  const ipHash = crypto.createHash('sha256').update(data.ipSalt + (ip || '')).digest('hex').slice(0, 16);
   if (!data.days[day].ips.includes(ipHash)) {
     data.days[day].uniq += 1;
     data.days[day].ips.push(ipHash);

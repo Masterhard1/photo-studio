@@ -29,6 +29,10 @@ setInterval(() => {
 }, 30 * 60 * 1000);
 
 function getClientIp(req) {
+  if (process.env.TRUST_PROXY === 'true') {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (forwarded) return forwarded.split(',')[0].trim();
+  }
   return req.socket.remoteAddress || 'unknown';
 }
 
@@ -489,7 +493,7 @@ if (sslKeyPath && sslCertPath && fs.existsSync(sslKeyPath) && fs.existsSync(sslC
 
   // Plain HTTP server only redirects to HTTPS — it never serves content directly.
   const redirectServer = http.createServer((req, res) => {
-    const host = (req.headers.host || '').split(':')[0];
+    const host = process.env.CANONICAL_HOST || (req.headers.host || '').split(':')[0];
     res.writeHead(301, { Location: `https://${host}${req.url}` });
     res.end();
   });
