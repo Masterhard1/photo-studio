@@ -197,6 +197,133 @@ function syncPhoneLinks(contacts) {
   headerPhone.textContent = phoneContact.value;
 }
 
+function renderReviews(reviews) {
+  const grid = document.getElementById('reviews-grid');
+  const empty = document.getElementById('reviews-empty');
+  grid.innerHTML = '';
+  if (reviews.length === 0) {
+    empty.hidden = false;
+    return;
+  }
+  empty.hidden = true;
+  reviews.forEach((review) => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+
+    const stars = document.createElement('div');
+    stars.className = 'review-card__stars';
+    stars.setAttribute('aria-label', `Оценка ${review.rating} из 5`);
+    stars.textContent = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+    card.appendChild(stars);
+
+    const name = document.createElement('p');
+    name.className = 'review-card__name';
+    name.textContent = review.name;
+    card.appendChild(name);
+
+    if (review.comment) {
+      const comment = document.createElement('p');
+      comment.className = 'review-card__comment';
+      comment.textContent = review.comment;
+      card.appendChild(comment);
+    }
+
+    const date = document.createElement('p');
+    date.className = 'review-card__date';
+    date.textContent = new Date(review.createdAt).toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+    card.appendChild(date);
+
+    grid.appendChild(card);
+  });
+}
+
+function addReviewsNavLink() {
+  const nav = document.getElementById('header-nav');
+  if (!nav || nav.querySelector('a[href="#reviews"]')) return;
+  const link = document.createElement('a');
+  link.href = '#reviews';
+  link.textContent = 'Отзывы';
+  link.addEventListener('click', () => {
+    nav.classList.remove('is-open');
+    document.getElementById('nav-burger').classList.remove('is-open');
+  });
+  nav.insertBefore(link, document.querySelector('a[href="#contacts"]'));
+}
+
+function loadReviews() {
+  return fetch('/api/reviews')
+    .then((res) => res.json())
+    .then((data) => {
+      const section = document.getElementById('reviews');
+      if (data.hideSection) {
+        section.hidden = true;
+        return;
+      }
+      section.hidden = false;
+      addReviewsNavLink();
+      renderReviews(data.reviews);
+    })
+    .catch((err) => console.error('Не удалось загрузить отзывы', err));
+}
+
+function setupReviewForm() {
+  const form = document.getElementById('review-form');
+  if (!form) return;
+  const starsWrap = document.getElementById('review-stars');
+  const starButtons = Array.from(starsWrap.querySelectorAll('.reviews__star'));
+  const status = document.getElementById('review-status');
+  let rating = 0;
+
+  function paintStars(value) {
+    starButtons.forEach((btn) => {
+      btn.classList.toggle('is-filled', Number(btn.dataset.value) <= value);
+    });
+  }
+
+  starButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      rating = Number(btn.dataset.value);
+      paintStars(rating);
+    });
+    btn.addEventListener('mouseenter', () => paintStars(Number(btn.dataset.value)));
+  });
+  starsWrap.addEventListener('mouseleave', () => paintStars(rating));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = '';
+    status.classList.remove('is-error');
+    if (!rating) {
+      status.textContent = 'Поставьте оценку';
+      status.classList.add('is-error');
+      return;
+    }
+    const name = document.getElementById('review-name').value.trim();
+    const comment = document.getElementById('review-comment').value.trim();
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, comment, rating }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Не удалось отправить отзыв');
+      status.textContent = 'Спасибо за отзыв!';
+      status.classList.remove('is-error');
+      form.reset();
+      rating = 0;
+      paintStars(0);
+      loadReviews();
+    } catch (err) {
+      status.textContent = err.message;
+      status.classList.add('is-error');
+    }
+  });
+}
+
+setupReviewForm();
+loadReviews();
+
 fetch('/api/content')
   .then((res) => res.json())
   .then((content) => {

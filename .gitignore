@@ -3,6 +3,7 @@ data/admin-config.json
 data/admin-config-backup.json
 data/stats.json
 data/bookings.db
+data/reviews.json
 .idea/
 *.log
 .env

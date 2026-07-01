@@ -160,6 +160,7 @@ function showDashboard(slot) {
   document.getElementById('backup-reset-block').hidden = slot !== 'backup';
   loadContent();
   loadStats();
+  loadReviewsAdmin();
 }
 
 function showLogin() {
@@ -391,6 +392,89 @@ function renderContacts() {
     list.appendChild(row);
   });
 }
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+let currentReviews = null;
+
+async function loadReviewsAdmin() {
+  const list = document.getElementById('reviews-admin-list');
+  try {
+    const data = await api('/api/admin/reviews');
+    document.getElementById('reviews-hide-section').checked = data.hideSection;
+    currentReviews = data.reviews;
+    renderReviewsAdmin();
+  } catch {
+    list.innerHTML = '<p class="admin-hint">Не удалось загрузить отзывы.</p>';
+  }
+}
+
+function renderReviewsAdmin() {
+  const list = document.getElementById('reviews-admin-list');
+  list.innerHTML = '';
+  if (currentReviews.length === 0) {
+    list.innerHTML = '<p class="admin-hint">Отзывов пока нет.</p>';
+    return;
+  }
+  currentReviews.forEach((review) => {
+    const row = document.createElement('div');
+    row.className = 'admin-list-item';
+
+    const info = document.createElement('div');
+    const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+    const date = new Date(review.createdAt).toLocaleDateString('ru-RU');
+    info.innerHTML = `<strong>${stars} — ${escapeHtml(review.name)}</strong>${review.hidden ? ' <span class="admin-hint">(скрыт)</span>' : ''}<br>${review.comment ? `${escapeHtml(review.comment)}<br>` : ''}<span class="admin-hint">${date}</span>`;
+
+    const actions = document.createElement('div');
+    actions.className = 'admin-list-item__actions';
+
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'admin-btn admin-btn--outline';
+    toggleBtn.textContent = review.hidden ? 'Показать' : 'Скрыть';
+    toggleBtn.addEventListener('click', async () => {
+      try {
+        await api(`/api/admin/reviews/${review.id}`, { method: 'PUT', body: JSON.stringify({ hidden: !review.hidden }) });
+        review.hidden = !review.hidden;
+        renderReviewsAdmin();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'admin-btn admin-btn--danger';
+    deleteBtn.textContent = 'Удалить';
+    deleteBtn.addEventListener('click', async () => {
+      if (!confirm(`Удалить отзыв «${review.name}»?`)) return;
+      try {
+        await api(`/api/admin/reviews/${review.id}`, { method: 'DELETE' });
+        currentReviews = currentReviews.filter((r) => r.id !== review.id);
+        renderReviewsAdmin();
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    actions.append(toggleBtn, deleteBtn);
+    row.append(info, actions);
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('reviews-hide-section').addEventListener('change', async (e) => {
+  const status = document.getElementById('reviews-settings-status');
+  try {
+    await api('/api/admin/reviews-settings', { method: 'PUT', body: JSON.stringify({ hideSection: e.target.checked }) });
+    setStatus(status, e.target.checked ? 'Блок отзывов скрыт на сайте' : 'Блок отзывов показывается на сайте', false);
+  } catch (err) {
+    e.target.checked = !e.target.checked;
+    setStatus(status, err.message, true);
+  }
+});
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
   e.preventDefault();

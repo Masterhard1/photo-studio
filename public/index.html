@@ -77,6 +77,31 @@
     </div>
   </section>
 
+  <section class="section reveal reviews" id="reviews" hidden>
+    <div class="container">
+      <h2 class="section__title">Отзывы</h2>
+      <div class="reviews__grid" id="reviews-grid"></div>
+      <p class="reviews__empty" id="reviews-empty" hidden>Пока отзывов нет — будьте первым!</p>
+
+      <div class="reviews__form-wrap">
+        <h3 class="reviews__form-title">Оставить отзыв</h3>
+        <form class="reviews__form" id="review-form">
+          <div class="reviews__stars" id="review-stars" role="radiogroup" aria-label="Оценка">
+            <button type="button" class="reviews__star" data-value="1" aria-label="1 звезда">★</button>
+            <button type="button" class="reviews__star" data-value="2" aria-label="2 звезды">★</button>
+            <button type="button" class="reviews__star" data-value="3" aria-label="3 звезды">★</button>
+            <button type="button" class="reviews__star" data-value="4" aria-label="4 звезды">★</button>
+            <button type="button" class="reviews__star" data-value="5" aria-label="5 звёзд">★</button>
+          </div>
+          <input type="text" id="review-name" placeholder="Ваше имя" maxlength="60" required>
+          <textarea id="review-comment" placeholder="Комментарий (необязательно)" rows="3" maxlength="500"></textarea>
+          <button type="submit" class="btn">Отправить отзыв</button>
+          <p class="reviews__status" id="review-status"></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <section class="section reveal contacts" id="contacts">
     <div class="container contacts__inner">
       <div class="contacts__info">

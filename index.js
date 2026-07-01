@@ -10,6 +10,7 @@ const auth = require('./server/auth');
 const store = require('./server/contentStore');
 const imageStore = require('./server/imageStore');
 const statsStore = require('./server/statsStore');
+const reviewsStore = require('./server/reviewsStore');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -179,6 +180,33 @@ async function handleApi(req, res, pathname) {
   // Public
   if (pathname === '/api/content' && req.method === 'GET') {
     sendJson(res, 200, store.getContent());
+    return;
+  }
+
+  if (pathname === '/api/reviews' && req.method === 'GET') {
+    sendJson(res, 200, reviewsStore.listPublic());
+    return;
+  }
+
+  if (pathname === '/api/reviews' && req.method === 'POST') {
+    const body = await readJsonBody(req, 4 * 1024);
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    const comment = typeof body.comment === 'string' ? body.comment.trim() : '';
+    const rating = Number(body.rating);
+    if (!name) {
+      sendJson(res, 400, { error: 'Укажите имя' });
+      return;
+    }
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+      sendJson(res, 400, { error: 'Оценка должна быть от 1 до 5' });
+      return;
+    }
+    try {
+      const review = reviewsStore.addReview({ name, comment, rating, ip: getClientIp(req) });
+      sendJson(res, 201, review);
+    } catch (err) {
+      sendJson(res, 429, { error: err.message });
+    }
     return;
   }
 
@@ -462,6 +490,39 @@ async function handleApi(req, res, pathname) {
     }
     const body = await readJsonBody(req, 1024);
     statsStore.setHideFromPrimary(!!body.hideFromPrimary);
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  if (pathname === '/api/admin/reviews' && req.method === 'GET') {
+    sendJson(res, 200, reviewsStore.listAll());
+    return;
+  }
+
+  if (pathname === '/api/admin/reviews-settings' && req.method === 'PUT') {
+    const body = await readJsonBody(req, 1024);
+    reviewsStore.setHideSection(!!body.hideSection);
+    sendJson(res, 200, { ok: true });
+    return;
+  }
+
+  const reviewMatch = pathname.match(/^\/api\/admin\/reviews\/([a-zA-Z0-9]+)$/);
+  if (reviewMatch && req.method === 'PUT') {
+    const body = await readJsonBody(req, 1024);
+    const updated = reviewsStore.setHidden(reviewMatch[1], !!body.hidden);
+    if (!updated) {
+      sendJson(res, 404, { error: 'Отзыв не найден' });
+      return;
+    }
+    sendJson(res, 200, updated);
+    return;
+  }
+  if (reviewMatch && req.method === 'DELETE') {
+    const ok = reviewsStore.deleteReview(reviewMatch[1]);
+    if (!ok) {
+      sendJson(res, 404, { error: 'Отзыв не найден' });
+      return;
+    }
     sendJson(res, 200, { ok: true });
     return;
   }

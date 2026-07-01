@@ -160,6 +160,17 @@
       </section>
 
       <section class="admin-card">
+        <h2>Отзывы</h2>
+        <p class="admin-hint">Отзывы оставляют посетители сайта. Здесь можно скрыть отдельный отзыв (он останется в базе, но пропадёт с сайта), удалить его совсем или скрыть весь блок отзывов на сайте.</p>
+        <label style="display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;margin-bottom:20px">
+          <input type="checkbox" id="reviews-hide-section">
+          Скрыть блок отзывов на сайте
+        </label>
+        <span class="admin-status" id="reviews-settings-status"></span>
+        <div id="reviews-admin-list" class="admin-list"></div>
+      </section>
+
+      <section class="admin-card">
         <h2>Подвал сайта (юридическая информация)</h2>
         <p class="admin-hint">Этот текст показывается внизу сайта под копирайтом — например, ФИО, ИНН, форма налогообложения. Перенос строки сохраняется как есть.</p>
         <form id="footer-legal-form" class="admin-form">
