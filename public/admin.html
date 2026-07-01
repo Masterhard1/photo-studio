@@ -14,12 +14,15 @@
 <body class="admin-body">
 
   <div class="admin-login" id="login-screen">
-    <form class="admin-login__form" id="login-form">
-      <h1 class="admin-login__title">Вход в админку</h1>
-      <input type="password" id="login-password" placeholder="Пароль" autocomplete="current-password" required>
-      <button type="submit" class="btn">Войти</button>
-      <p class="admin-error" id="login-error"></p>
-    </form>
+    <div class="admin-login__box">
+      <form class="admin-login__form" id="login-form">
+        <h1 class="admin-login__title">Вход в админку</h1>
+        <input type="password" id="login-password" placeholder="Пароль" autocomplete="current-password" required>
+        <button type="submit" class="btn">Войти</button>
+        <p class="admin-error" id="login-error"></p>
+      </form>
+      <a href="/" class="admin-login__back-link">← Вернуться на сайт</a>
+    </div>
   </div>
 
   <div class="admin-dashboard" id="dashboard" hidden>
